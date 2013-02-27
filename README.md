@@ -21,8 +21,3 @@ The VC_Framework component will call those methods prior to saving/deleting the 
 ## Usage
 
 If you modify the matrix database, you should build a new component.  To build a new component, execute the BLD_Build method from the matrix database.
-
-## Known Issues
-
-20120816 - Non-unique form object Object Names will cause [METHOD GET CODE](http://doc.4d.com/4Dv13.1/help/Command/en/page2591.html) to fail with the error -9768, "Invalid object path: {path}". 4D does not allow non-unique Object Names in a given form, but this issue can occur via conversion from older versions. The solution is to make all of the Object Names unique ([this can be automated](http://kb.4d.com/assetid=76640)). VC_Framework should take this into account but I'm not sure how yet. Right now this errror disables the export, which is not good. But I don't want to ignore -9768 either because it is a legitimate error. I have filed [a feature request](http://forums.4d.fr/Post/EN/11108706/1/11108707) for a unique error code in this situation.
-20121026 - In communication with the developer we may get a unique error code for this.
