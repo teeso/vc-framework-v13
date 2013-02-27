@@ -1,0 +1,78 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/20/12, 16:52:35
+// ----------------------------------------------------
+// Description:
+//   Process method to handle management of the error log.
+// 
+//   Note this is a log of invalid method names
+//  (including table, form, and object names).
+// --[HEADEREND]---------------------------------------
+C_LONGINT($error_l;$dontcare_l)
+
+C_BOOLEAN($warnNeeded_f)
+
+// Set up error handling module.
+UTIL_ERR_Startup 
+
+// Set up progress bar module.
+PROG_Startup 
+
+// This is an optimization; most of the following methods require
+// the external database, which means opening and closing the
+// connection over and over.  If I open a connection ahead of time,
+// it will only increment the counter.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+// Clean up any methods that have been fixed already.
+If ($error_l=0)
+$error_l:=VC_LOG_Clean 
+End if 
+
+
+// Save the log
+If ($error_l=0)
+$error_l:=VC_LOG_Save 
+End if 
+
+
+// Are there any new methods to warn the user about?
+If ($error_l=0)
+$error_l:=VC_LOG_WarnNeeded (->$warnNeeded_f)
+End if 
+
+
+// Warn the user.
+If ($error_l=0)
+If ($warnNeeded_f)
+VC_LOG_ShowWarning 
+End if 
+End if 
+
+
+// Mark the entries as being warned.
+If ($error_l=0)
+$error_l:=VC_LOG_MarkWarned 
+End if 
+
+
+// Close the outer connection.
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t;"Error during log export.")
+End if 

@@ -1,0 +1,15 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/25/12, 12:33:08
+// ----------------------------------------------------
+// Description:
+//   If the component detects invalid method names, a
+//   warning is shown.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($winRef)
+
+$winRef:=Open form window("VC_LOG_Warning";Plain form window ;Horizontally Centered ;Vertically Centered )
+DIALOG("VC_LOG_Warning")
+
+CLOSE WINDOW($winRef)

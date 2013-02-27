@@ -1,0 +1,44 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/20/12, 13:35:53
+// ----------------------------------------------------
+// Description:
+//   Remove any records from the methods table.
+//
+//   WARNING: this my desynchronize VC_Framework with the
+//   VC being used. VC_Framework will try to create all
+//   methods after doing this, therefore calling the
+//   "create" dehook.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_LONGINT($dontcare_l)
+
+// Open external database.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+// Delete method entries.
+UTIL_ERR_HandlerInstall 
+Begin SQL
+DELETE FROM VC_Methods;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+
+// Close external database.
+If ($error_l=0)
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+$0:=$error_l

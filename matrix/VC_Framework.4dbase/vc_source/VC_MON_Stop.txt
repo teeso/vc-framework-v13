@@ -1,0 +1,30 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/11/12, 18:13:57
+// ----------------------------------------------------
+// Description:
+//   Stops the CodeEditor monitor process.
+//
+//   Note: executes on server.
+//
+//   Called by Macro.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($error_l)
+
+C_BOOLEAN(<>VC_Enabled_f)
+
+If (<>VC_Enabled_f)
+<>VC_StopMonitor_f:=True
+Else 
+UTIL_ERR_Startup 
+// This should be impossible, because you have to open
+// a method in order to run the the macro that calls
+// this method...opening a method launches the component.
+$error_l:=<>ERR_VC_NotEnabled_l
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t)
+End if 

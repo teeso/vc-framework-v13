@@ -1,0 +1,32 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/15/12, 16:34:22
+// ----------------------------------------------------
+// Description:
+//   Debugging method for checking the data in the
+//   VC_Methods table.
+//
+// --[HEADEREND]---------------------------------------
+C_TEXT($data_t)
+C_LONGINT($error_l)
+
+ARRAY TEXT($ids_at;0)
+ARRAY TEXT($paths_at;0)
+ARRAY TEXT($actions_at;0)
+ARRAY TEXT($states_at;0)
+
+$error_l:=VC_EXT_Open 
+Begin SQL
+SELECT ID, methodPath, action, state
+FROM VC_Methods
+INTO :$ids_at, :$paths_at, :$actions_at, :$states_at;
+End SQL
+$error_l:=VC_EXT_Close 
+
+UTIL_ARRAY_TableAddColumn (->$data_t;->$ids_at)
+UTIL_ARRAY_TableAddColumn (->$data_t;->$paths_at)
+UTIL_ARRAY_TableAddColumn (->$data_t;->$actions_at)
+UTIL_ARRAY_TableAddColumn (->$data_t;->$states_at)
+
+SET TEXT TO PASTEBOARD($data_t)

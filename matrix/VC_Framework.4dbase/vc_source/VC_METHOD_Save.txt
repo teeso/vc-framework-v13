@@ -1,0 +1,85 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 03/16/11, 18:09:57
+// ----------------------------------------------------
+// Description:
+//   Given a Design Object Access method path, save the
+//   method to disk.
+//
+//   Note: requires <>VC_SourcerootPOSIX_t for the root
+//   folder, so not totally generic.
+// --[HEADEREND]---------------------------------------
+C_TEXT($1;$methodPath_t)
+
+C_LONGINT($0;$error_l)
+
+C_TEXT($filePath_t;$currentMethodBody_t)
+C_BLOB($currentMethodBody_b;$bom_b)
+C_TIME($docRef_h)
+
+$methodPath_t:=$1
+
+// == Prepare the file system ===============================================
+
+$filePath_t:=VC_UTIL_DOAPathToSystem ($methodPath_t)
+
+// Create any subfolders for this path, if necessary.
+// With the new behavior of CREATE FOLDER, you can call this even if all the
+// folders already exist.
+UTIL_ERR_HandlerInstall 
+CREATE FOLDER($filePath_t;*)// Pass the * to indicate subfolders should be created.
+$error_l:=UTIL_ERR_HandlerRemove 
+
+
+// == Get the method code ===================================================
+
+If ($error_l=0)
+UTIL_ERR_HandlerInstall 
+METHOD GET CODE($methodPath_t;$currentMethodBody_t;*)// Pass the * to indicate it's a host method.
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+
+// == Fix line endings ===================================================
+
+// METHOD GET CODE returns CR for line endings.  This is really uncommon
+// at the file level.  In points of fact git doesn't support bare CR at
+// all.  We could be platform specific, and do CRLF for Windows and LF
+// for Mac but this is messy.  Decided to just standardize on LF.
+$currentMethodBody_t:=Replace string($currentMethodBody_t;Char(Carriage return );Char(Line feed ))
+
+
+// == Convert the code ===================================================
+
+// Methods will be saved as UTF-8 so I need to convert
+// the 4D Text (UTF-16) to UTF-8...
+If ($error_l=0)
+CONVERT FROM TEXT($currentMethodBody_t;"UTF-8";$currentMethodBody_b)
+End if 
+
+
+// == Save the method to disk ===================================================
+
+If ($error_l=0)
+UTIL_ERR_HandlerInstall 
+$docRef_h:=Create document($filePath_t)
+$error_l:=UTIL_ERR_HandlerRemove 
+
+If ($error_l=0)
+// This is the UTF-8 Byte Order Mark (BOM).  It will be inserted into the
+// saved method to ensure the file is recognized as UTF-8.
+SET BLOB SIZE($bom_b;3)
+$bom_b{0}:=239// EF (UTF-8)
+$bom_b{1}:=187// BB (UTF-8)
+$bom_b{2}:=191// BF (UTF-8)
+
+// Insert the BOM...
+SEND PACKET($docRef_h;$bom_b)
+// Add the content.
+SEND PACKET($docRef_h;$currentMethodBody_b)
+CLOSE DOCUMENT($docRef_h)
+End if 
+End if 
+
+$0:=$error_l

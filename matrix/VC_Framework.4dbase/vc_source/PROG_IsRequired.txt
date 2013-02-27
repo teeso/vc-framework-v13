@@ -1,0 +1,67 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/09/12, 16:04:22
+// ----------------------------------------------------
+// Description:
+//   Goal: only display a progress bar if the operation
+//   will take a "long" time.
+//
+//   This method estimates how long the operation will
+//   take to complete.  It's designed to be called in
+//   a loop.
+//
+//   It returns False if the operation will be fast
+//   enough to skip the progress bar.
+//   It returns True if the operation will take too long.
+//
+//   Input is amount complete of the current job and
+//   the threshold.
+//
+//   Note the estimation is a simple linear calculation,
+//   nothing fancy.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($1;$myProgressBarID_l)// ID of the PROG_ progress bar (NOT the 4D ID)
+C_REAL($2;$progress_r)// 4D Progress wants this value between 0 and 1
+C_LONGINT($3;$threshold_l)// If the operation is estimated to take longer than this, show a progress bar
+
+C_BOOLEAN($0;$progressRequired_f)
+
+C_LONGINT($startTime_l;$currentTime_l;$estimatedDuration_l;$currentDuration_l)
+
+$myProgressBarID_l:=$1
+$progress_r:=$2
+
+// Threshold for showing the progress bar, in ms.
+// Change this value if you want the progress bar to be
+// displayed sooner or later.
+$threshold_l:=$3
+
+$startTime_l:=PROG_STARTTIME_AL{$myProgressBarID_l}
+
+$progressRequired_f:=False
+
+// Set the start time the first time this method is called.
+If ($startTime_l=0)
+$startTime_l:=Milliseconds
+PROG_STARTTIME_AL{$myProgressBarID_l}:=$startTime_l
+End if 
+
+// Get the current time.
+$currentTime_l:=Milliseconds
+
+// This is how long the job has been executing so far.
+$currentDuration_l:=$currentTime_l-$startTime_l
+
+// Duration estimation is nothing fancy, just a linear
+// calculation based on how much is complete so far and
+// how long it took.
+$estimatedDuration_l:=$currentDuration_l/$progress_r
+
+// Test the estimate against the threshold.
+If ($estimatedDuration_l>$threshold_l)
+$progressRequired_f:=True
+End if 
+
+
+$0:=$progressRequired_f

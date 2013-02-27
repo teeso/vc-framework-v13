@@ -1,0 +1,75 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/05/12, 15:32:06
+// ----------------------------------------------------
+// Description:
+//   Stored procedure that monitors method changes and
+//   kicks of a save accordingly.
+//
+//   This process is launched via macro events, no
+//   setup code is required in the Host.
+//
+//   Note: This process does all error handling (errors
+//   bubble up from the rest of the code).
+// --[HEADEREND]---------------------------------------
+C_LONGINT(<>VC_LastMethodStamp_l)
+
+C_LONGINT($error_l)
+C_TEXT($lastMethodStamp_t)
+C_BOOLEAN($showError_f)
+
+// Set up error handling module.
+UTIL_ERR_Startup 
+
+// Set up progress bar module.
+PROG_Startup 
+
+// Error messages are only displayed the first time; the
+// process will keep running even if there's an error in
+// case the user fixes it.
+$showError_f:=True
+
+// I load this preference once, outside the loop, so
+// that I don't need to connect to the external database
+// at the beginning of every loop.  The only time I
+// connect to the external database is if the stamp changes.
+$error_l:=VC_EXT_PrefGet (<>VC_StampLabel_t;->$lastMethodStamp_t)
+
+If ($error_l=0)
+
+<>VC_LastMethodStamp_l:=Num($lastMethodStamp_t)
+
+Repeat 
+
+// Process the methods...
+If (<>VC_ERROR_F=False)
+// Reset flag to show errors in case it was off.
+$showError_f:=True
+$error_l:=VC_MON_ProcessChanges 
+End if 
+
+// Test for error.
+If ($error_l#0)
+// Disable the module.  NOTE: process keeps running in
+// case the problem is fixed.
+<>VC_ERROR_F:=True
+End if 
+
+// Only show the error once, not every iteration.
+If (($error_l#0) & ($showError_f))
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t)
+$showError_f:=False
+End if 
+
+// This method detects if the database is quitting,
+// in addition to delaying the process.
+VC_MON_DelayProcess 
+
+IDLE
+
+Until (<>VC_StopMonitor_f)
+
+Else 
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;Current method name)
+End if 

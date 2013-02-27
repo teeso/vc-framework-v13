@@ -1,0 +1,33 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/11/12, 17:07:24
+// ----------------------------------------------------
+// Description:
+//   Method no longer exists in the database, call this
+//   to delete the file from disk.
+// --[HEADEREND]---------------------------------------
+C_TEXT($1;$methodPath_t)
+
+C_LONGINT($0;$error_l)
+
+C_TEXT($filePathPosix_t;$filePath_t)
+
+$methodPath_t:=$1
+
+// Design Object Access paths are already POSIX compliant, only need to:
+//   -make absolute, Convert path POSIX to system requires absolute paths.
+$filePathPosix_t:=<>VC_SourcerootPOSIX_t+"/"+$methodPath_t
+//   -convert to System.
+$filePath_t:=Convert path POSIX to system($filePathPosix_t;*)// Must pass the * because Design Object Access paths are encoded.
+//   -add a file extension.
+$filePath_t:=$filePath_t+".txt"
+
+// It's possible the file has already been deleted.  This is ok.
+// With SVN, for example, 'svn delete' immediately removes the
+// file (as opposed to deleting it on commit).
+If (Test path name($filePath_t)=Is a document )
+DELETE DOCUMENT($filePath_t)
+End if 
+
+$0:=$error_l

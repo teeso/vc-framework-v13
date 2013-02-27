@@ -1,0 +1,12 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/25/12, 12:32:11
+// ----------------------------------------------------
+// Description:
+//   Show location of the log file that tracks invalid
+//   method names.
+// --[HEADEREND]---------------------------------------
+If (Test path name(<>VC_EXT_LOGFILE_T)=Is a document )
+SHOW ON DISK(<>VC_EXT_LOGFILE_T)
+End if 

@@ -1,0 +1,23 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/02/12, 17:57:13
+// ----------------------------------------------------
+// Description:
+//   Generic method to handle on_save, on_load, on_close,
+//   and on_create macro events.
+//
+//   The goal here is the make the setup painless for
+//   the user.  If they open, close, edit, or create a
+//   method the component setup code will run.  Note
+//   that when launching the database if a method
+//   was left open, the macro runs.
+//
+//   Because of this no code changes need to be made to
+//   the host database at all and to uninstall the
+//   component you just delete it.
+// --[HEADEREND]---------------------------------------
+C_TEXT($1;$methodPath_t)// Not actually used (yet).
+
+// Note VC_OnStartup executes on server in client-server.
+VC_STARTUP_OnStartup 

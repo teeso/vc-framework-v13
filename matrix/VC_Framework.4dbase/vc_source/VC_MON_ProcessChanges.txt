@@ -1,0 +1,73 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/05/12, 16:14:59
+// ----------------------------------------------------
+// Description:
+//   Wrapper method called by VC_MON_Process.
+//
+//   I moved this to a separate method (from VC_MON_Process)
+//   so that changes can be made at run time without
+//   restarting the monitor.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_LONGINT($currentMethodStamp_l)
+
+ARRAY TEXT($methodsToSave_at;0)
+
+// Get the last method stamp.
+$currentMethodStamp_l:=<>VC_LastMethodStamp_l
+
+// Get changed methods since last stamp.
+METHOD GET PATHS(Path All objects ;$methodsToSave_at;$currentMethodStamp_l;*)
+
+If (Size of array($methodsToSave_at)>0)
+
+// ==============================================================================
+// Validate method paths (invalid paths will be removed).
+$error_l:=VC_METHOD_ValidateAll (->$methodsToSave_at)
+
+If ($error_l=<>ERR_METH_BadPathsFound_l)
+// This error is ignorable. The user will be warned, but
+// it shouldn't stop the method export.
+$error_l:=0
+End if 
+
+
+// ==============================================================================
+// Determine create/update actions.
+If ($error_l=0)
+$error_l:=VC_METHOD_FindCreateUpdate (->$methodsToSave_at)
+End if 
+
+End if 
+
+
+// ==============================================================================
+// Determine delete actions.
+If ($error_l=0)
+$error_l:=VC_METHOD_FindDelete 
+End if 
+
+
+// ==============================================================================
+// Process actions.
+If ($error_l=0)
+$error_l:=VC_METHOD_HandleEvents (->$methodsToSave_at)
+End if 
+
+PROG_CloseAll 
+
+// Check to see if the stamp changed and save it if so.
+If ($error_l=0)
+If (<>VC_LastMethodStamp_l#$currentMethodStamp_l)
+$error_l:=VC_EXT_PrefSet (<>VC_StampLabel_t;String($currentMethodStamp_l))
+If ($error_l=0)
+// Only update the stamp if the save was successful.
+<>VC_LastMethodStamp_l:=$currentMethodStamp_l
+End if 
+End if 
+End if 
+
+$0:=$error_l

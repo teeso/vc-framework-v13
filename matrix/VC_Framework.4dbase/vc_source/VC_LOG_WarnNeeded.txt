@@ -1,0 +1,48 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/20/12, 13:35:53
+// ----------------------------------------------------
+// Description:
+//   Check to see if there are any log entries the user
+//   hasn't been warned about yet.
+// --[HEADEREND]---------------------------------------
+C_POINTER($1;$warnNeeded_p_f)
+
+C_LONGINT($0;$error_l)
+
+C_LONGINT($dontcare_l;$warnNeeded_l)
+
+$warnNeeded_p_f:=$1
+
+// Open external database.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+// Check the entries.
+UTIL_ERR_HandlerInstall 
+Begin SQL
+SELECT COUNT( ID )
+FROM VC_BadPathLog
+WHERE userWarned = FALSE
+INTO :$warnNeeded_l;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+If ($error_l=0)
+If ($warnNeeded_l>0)
+$warnNeeded_p_f->:=True
+Else 
+$warnNeeded_p_f->:=False
+End if 
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+$0:=$error_l

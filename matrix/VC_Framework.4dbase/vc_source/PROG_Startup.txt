@@ -1,0 +1,27 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/16/12, 13:18:53
+// ----------------------------------------------------
+// Description:
+//   Initialize PROG module process arrays if needed.
+// --[HEADEREND]---------------------------------------
+C_BOOLEAN(PROG_Initialized_f)// Just a flag to detect if the arrays have been declared.
+
+// Set up arrays.
+If (PROG_Initialized_f=False)
+ARRAY LONGINT(PROG_IDs_al;0)// My IDs
+ARRAY LONGINT(PROG_4DIDs_al;0)// 4D's IDs
+
+ARRAY TEXT(PROG_Title_at;0)
+ARRAY LONGINT(PROG_Current_al;0)
+ARRAY LONGINT(PROG_Total_al;0)
+
+ARRAY LONGINT(PROG_Threshold_al;0)
+ARRAY REAL(PROG_Progress_ar;0)
+ARRAY TEXT(PROG_Message_at;0)
+
+ARRAY LONGINT(PROG_StartTime_al;0)// Time the task started (ms)
+
+PROG_Initialized_f:=True
+End if 

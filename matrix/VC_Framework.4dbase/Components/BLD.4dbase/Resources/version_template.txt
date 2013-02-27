@@ -1,0 +1,5 @@
+Current Version: <!--4DTEXT String(CurrentVersion_l) -->
+
+This file represents the version number of the component.
+
+To build a new version, execute the "BLD_Build" method from the matrix database.

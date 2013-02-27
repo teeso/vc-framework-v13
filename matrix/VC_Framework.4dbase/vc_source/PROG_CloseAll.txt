@@ -1,0 +1,40 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/08/12, 16:39:35
+// ----------------------------------------------------
+// Description:
+//   Clean up any open progress bars at once.
+//
+//   Note: if there are no progress bars left, 4D
+//   Progress also closes the window.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($4DProgressBarID_l)
+
+C_LONGINT($i;$limit_l)
+
+$limit_l:=Size of array(PROG_4DIDS_AL)
+
+For ($i;1;$limit_l)
+$4DProgressBarID_l:=PROG_4DIDS_AL{$i}
+
+// My progress wrapper allows for hidden progress bars,
+// so make sure a 4D Progress bar actually exists.
+If ($4DProgressBarID_l#0)
+Progress QUIT ($4DProgressBarID_l)
+End if 
+
+End for 
+
+ARRAY LONGINT(PROG_IDs_al;0)
+ARRAY LONGINT(PROG_4DIDs_al;0)
+ARRAY TEXT(PROG_Title_at;0)
+ARRAY LONGINT(PROG_Current_al;0)
+ARRAY LONGINT(PROG_Total_al;0)
+ARRAY LONGINT(PROG_Threshold_al;0)
+ARRAY REAL(PROG_Progress_ar;0)
+ARRAY TEXT(PROG_Message_at;0)
+ARRAY LONGINT(PROG_StartTime_al;0)
+
+// This flag indicates whether or not the 4D Progress window is still open.
+PROG_DISPLAYED_F:=False

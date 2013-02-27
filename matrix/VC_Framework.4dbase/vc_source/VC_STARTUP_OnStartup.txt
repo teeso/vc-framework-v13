@@ -1,0 +1,224 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/04/12, 12:34:05
+// ----------------------------------------------------
+// Description:
+//   Startup code for the component.
+//
+//   This code is launched via the macro events, there
+//   is no setup code needed in the Host database.
+//
+//   Important note: most of this code should only
+//   run once per session.  Once it's started
+//   executing, it won't run again. Only some of the
+//   global variable definitions execute each time.
+//
+//   Note: executes on server.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($error_l;$dontcare_l)
+C_TEXT($externalDataFolderName_t;$externalDataFolderPath_t;$externalDataFile_t;$sourceFolderName_t;$sourceFolderPath_t;$logFileName_t)
+
+// These are used to set up the global vars.
+$externalDataFolderName_t:="vc_data"
+$externalDataFolderPath_t:=Get 4D folder(Database Folder ;*)+$externalDataFolderName_t
+$externalDataFile_t:="VC_Data"
+$sourceFolderName_t:="vc_source"
+$sourceFolderPath_t:=Get 4D folder(Database Folder ;*)+$sourceFolderName_t
+$logFileName_t:="VC_errors.txt"
+
+// Set up error handling module.
+UTIL_ERR_Startup 
+
+// ===================================================================================
+// Global variables, used throughout the component.
+
+// Component name used for various dialogs and messages.
+C_TEXT(<>VC_ComponentName_t)
+<>VC_ComponentName_t:=UTIL_FILE_GetDatabaseName 
+
+// Design Object Access paths are all POSIX compliant (thus need to be converted to System).
+// However they are also relative paths.  The "Convert path POSIX to system" command
+// requires absolute paths.  I.e. I need the source root path to be POSIX for further
+// usage.
+// Furthmore Design Object Access paths are encoded (so pass the *).
+C_TEXT(<>VC_SourcerootPOSIX_t)
+<>VC_SourcerootPOSIX_t:=Convert path system to POSIX($sourceFolderPath_t;*)
+
+// Path to external database to store metadata.
+C_TEXT(<>VC_DataFile_t)
+<>VC_DataFile_t:=$externalDataFolderPath_t+Folder separator +$externalDataFile_t
+
+// Constant for the external database, this is the name of the last stamp preference.
+C_TEXT(<>VC_StampLabel_t)
+<>VC_StampLabel_t:="Last Method Stamp"
+
+// Log file for invalid method paths (see VC_EXT_LogSave)
+C_TEXT(<>VC_EXT_LogFile_t)
+<>VC_EXT_LogFile_t:=Get 4D folder(Logs Folder ;*)+"VC_errors.txt"
+
+// VC actions, used to determine which callback to call.
+C_TEXT(<>VC_METHOD_ACTION_Create_t)
+C_TEXT(<>VC_METHOD_ACTION_Update_t)
+C_TEXT(<>VC_METHOD_ACTION_Delete_t)
+
+<>VC_METHOD_ACTION_Create_t:="VC_Create"
+<>VC_METHOD_ACTION_Update_t:="VC_Update"
+<>VC_METHOD_ACTION_Delete_t:="VC_Delete"
+
+// Method state, used to track deleted methods mainly.
+// That is to say a record will persist for deleted
+// methods, but be ignored on subsequent queries.
+C_TEXT(<>VC_METHOD_STATE_Active_t)
+C_TEXT(<>VC_METHOD_STATE_Deleted_t)
+
+<>VC_METHOD_STATE_Active_t:="VC_Active"
+<>VC_METHOD_STATE_Deleted_t:="VC_Deleted"
+
+
+// Check to make sure the code can be executed.
+If (VC_STARTUP_OkToStart )
+
+// These global vars should only be set once per session.
+
+// Global flag to stop the background monitor process (and prevent it from relaunching too).
+C_BOOLEAN(<>VC_StopMonitor_f)
+<>VC_StopMonitor_f:=False
+
+// Global error flag, if there's an error, code export is disabled.
+C_BOOLEAN(<>VC_Error_f)
+<>VC_Error_f:=False
+
+
+// The root for source files.
+If (Test path name($sourceFolderPath_t)#Is a folder )
+CREATE FOLDER($sourceFolderPath_t)
+End if 
+
+
+// ===================================================================================
+// Set up the external database.
+C_TEXT($statement_t)
+
+If (Test path name($externalDataFolderPath_t)#Is a folder )
+CREATE FOLDER($externalDataFolderPath_t)
+End if 
+
+
+If (Test path name(<>VC_DataFile_t+".4db")#Is a document )
+
+// Create the database.
+$statement_t:="CREATE DATABASE IF NOT EXISTS DATAFILE '"+<>VC_DataFile_t+"';"
+UTIL_ERR_HandlerInstall 
+Begin SQL
+EXECUTE IMMEDIATE :$statement_t;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+
+
+// Connect to external database.
+If ($error_l=0)
+$error_l:=VC_EXT_Open 
+End if 
+
+
+// Create preferences table.
+If ($error_l=0)
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE TABLE IF NOT EXISTS VC_Prefs
+(
+   ID UUID NOT NULL UNIQUE AUTO_GENERATE,
+   prefName VARCHAR NOT NULL UNIQUE,
+   prefValue VARCHAR NOT NULL
+);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+
+// Create table for tracking methods.
+If ($error_l=0)
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE TABLE IF NOT EXISTS VC_Methods
+(
+   ID UUID NOT NULL UNIQUE AUTO_GENERATE,
+   methodPath VARCHAR NOT NULL UNIQUE,
+   action VARCHAR,
+   state VARCHAR NOT NULL
+);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+// Create logging table for invalid paths.
+If ($error_l=0)
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE TABLE IF NOT EXISTS VC_BadPathLog
+(
+   ID UUID NOT NULL UNIQUE AUTO_GENERATE,
+   methodPath VARCHAR NOT NULL UNIQUE,
+   pathType INT NOT NULL,
+   tableName VARCHAR,
+   objectName VARCHAR,
+   formObjectName VARCHAR,
+   tableNameInvalid BOOLEAN NOT NULL,
+   objectNameInvalid BOOLEAN NOT NULL,
+   formObjectNameInvalid BOOLEAN NOT NULL,
+   userWarned BOOLEAN NOT NULL
+);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+
+// Set the initial stamp value, but don't overwrite if it already exists.
+If ($error_l=0)
+$error_l:=VC_EXT_PrefSet (<>VC_StampLabel_t;"0";False)
+End if 
+
+End if 
+
+
+// ===================================================================================
+// These items only run if in component mode.
+If ($error_l=0)
+If (UTIL_IsComponent )
+// Nothing for now.
+End if 
+End if 
+
+
+// ===================================================================================
+// Set a flag so we know everything is set up.
+If ($error_l=0)
+C_BOOLEAN(<>VC_Enabled_f)
+<>VC_Enabled_f:=True
+End if 
+
+
+// ===================================================================================
+// Start background process to monitor code changes.
+If ($error_l=0)
+VC_MON_Start 
+End if 
+
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t;"Startup failed.")
+End if 
+
+End if 

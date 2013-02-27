@@ -1,0 +1,32 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/06/12, 14:59:45
+// ----------------------------------------------------
+// Description:
+//   Clear previous error state, allowing the Monitor
+//   to continue it's job.
+//
+//   Start the Monitor if it wasn't running.
+//
+//   Called by Macro.
+// --[HEADEREND]---------------------------------------
+C_BOOLEAN(<>VC_Enabled_f)
+C_LONGINT($error_l)
+
+If (<>VC_Enabled_f)
+<>VC_ERROR_F:=False
+
+VC_MON_Start 
+Else 
+UTIL_ERR_Startup 
+// This should be impossible, because you have to open
+// a method in order to run the the macro that calls
+// this method...opening a method launches the component.
+$error_l:=<>ERR_VC_NotEnabled_l
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t)
+End if 

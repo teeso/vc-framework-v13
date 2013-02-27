@@ -1,0 +1,87 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/19/12, 16:51:31
+// ----------------------------------------------------
+// Description:
+//   Wrapper for VC_METHOD_Validate, loop over all
+//   unsaved paths and validate.
+// --[HEADEREND]---------------------------------------
+C_POINTER($1;$pathsToValidate_p_at)
+
+C_LONGINT($0;$error_l)
+
+C_LONGINT($numPaths_l;$currentPath_l;$progID_l;$progThreshold_l;$dontcare_l)
+C_REAL($progress_r)
+C_TEXT($currentMethodPath_t;$progTitle_t)
+C_BOOLEAN($badPathsFound_f)
+
+$pathsToValidate_p_at:=$1
+
+$badPathsFound_f:=False
+
+$numPaths_l:=Size of array($pathsToValidate_p_at->)
+// Array is traveresed in reverse because I may be deleting elements.
+$currentPath_l:=$numPaths_l
+
+// This is an optimization for VC_METHOD_Validate; if logging is
+// enabled, VC_METHOD_Validate creates a record in the external
+// database, which means opening and closing the connection with
+// each iteration of this loop.  If I open a connection ahead of
+// time, it will only increment the counter.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+$progThreshold_l:=1000
+$progTitle_t:=<>VC_ComponentName_t+" Validating Method Paths"
+$progID_l:=PROG_Create ($progTitle_t;$numPaths_l;$progThreshold_l)
+
+// Loop over each method to validate the paths...
+While (($currentPath_l>=1) & ($error_l=0))
+
+$currentMethodPath_t:=$pathsToValidate_p_at->{$currentPath_l}
+
+$progress_r:=($numPaths_l-$currentPath_l)/$numPaths_l
+PROG_Update ($progID_l;$progress_r;($numPaths_l-$currentPath_l)+1)
+
+// Validate the path.
+If ($error_l=0)
+$error_l:=VC_METHOD_Validate ($currentMethodPath_t;True)// True = Turn on logging
+
+End if 
+
+// Method name/path invalid, remove it from the array.
+If ($error_l=<>ERR_METH_BADNAME_L)
+$badPathsFound_f:=True// This is a flag to let the calling method know if there were any bad paths.
+DELETE FROM ARRAY($pathsToValidate_p_at->;$currentPath_l)
+$error_l:=0// This error doesn't stop the validation.
+End if 
+
+// Only increment if there was no error (in case I want to refer back to where I failed).
+If ($error_l=0)
+$currentPath_l:=$currentPath_l-1
+End if 
+
+End while 
+
+End if 
+
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+If ($badPathsFound_f)
+VC_LOG_Start 
+$error_l:=<>ERR_METH_BadPathsFound_l
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+$0:=$error_l

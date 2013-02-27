@@ -1,0 +1,39 @@
+<?xml version="1.0" encoding="windows-1252" standalone="no" ?>
+<!DOCTYPE macros SYSTEM "http://www.4d.com/dtd/2007/macros.dtd" >
+<macros>
+	<!-- Hidden macros that enable the component. -->
+	<macro name="VC_SaveMethod" type_ahead="false" in_menu="false" in_toolbar="false" method_event="on_save" version="2">
+		<text><method>VC_MACRO_Generic("<method_path/>")</method></text>
+	</macro>
+	<macro name="VC_LoadMethod" type_ahead="false" in_menu="false" in_toolbar="false" method_event="on_load" version="2">
+		<text><method>VC_MACRO_Generic("<method_path/>")</method></text>
+	</macro>
+	<macro name="VC_CloseMethod" type_ahead="false" in_menu="false" in_toolbar="false" method_event="on_close" version="2">
+		<text><method>VC_MACRO_Generic("<method_path/>")</method></text>
+	</macro>
+	<macro name="VC_CreateMethod" type_ahead="false" in_menu="false" in_toolbar="false" method_event="on_create" version="2">
+		<text><method>VC_MACRO_Generic("<method_path/>")</method></text>
+	</macro>
+	<!-- User usable macros to control the component. -->
+	<macro name="VC_Framework: Start Monitor" type_ahead="false" in_menu="false" in_toolbar="true" version="2">
+		<text><method>VC_MON_Start</method></text>
+	</macro>
+	<macro name="VC_Framework: Stop Monitor" type_ahead="false" in_menu="false" in_toolbar="true" version="2">
+		<text><method>VC_MON_Stop</method></text>
+	</macro>
+	<macro name="VC_Framework: Resolve Error" type_ahead="false" in_menu="false" in_toolbar="true" version="2">
+		<text><method>VC_MON_ResolveError</method></text>
+	</macro>
+	<macro name="VC_Framework: Full Reset" type_ahead="false" in_menu="false" in_toolbar="true" version="2">
+		<text><method>VC_Reset</method></text>
+	</macro>
+	<macro name="VC_Framework: Startup Install - Optional" type_ahead="false" in_menu="false" in_toolbar="true" version="2">
+		<text>C_LONGINT($found_l)
+ARRAY TEXT($components_at;0)
+COMPONENT LIST($components_at)
+$found_l:=Find in array($components_at;"VC_Framework")
+If ($found_l>0)
+	EXECUTE METHOD("VC_STARTUP_OnStartup")
+End if</text>
+	</macro>
+</macros>

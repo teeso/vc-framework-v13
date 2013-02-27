@@ -1,0 +1,99 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/20/12, 16:44:21
+// ----------------------------------------------------
+// Description:
+//   Insert a log record from the log table.
+// --[HEADEREND]---------------------------------------
+C_TEXT($1;$methodPath_t)
+C_LONGINT($2;$methodType_l)
+C_TEXT($3;$tableName_t)
+C_TEXT($4;$objectName_t)
+C_TEXT($5;$formObjectName_t)
+C_BOOLEAN($6;$tableNameInvalid_f)
+C_BOOLEAN($7;$ObjectNameInvalid_f)
+C_BOOLEAN($8;$FormObjectNameInvalid_f)
+
+C_LONGINT($0;$error_l)
+
+C_LONGINT($exists_l;$dontcare_l)
+
+$methodPath_t:=$1
+$methodType_l:=$2
+$tableName_t:=$3
+$objectName_t:=$4
+$formObjectName_t:=$5
+$tableNameInvalid_f:=$6
+$ObjectNameInvalid_f:=$7
+$FormObjectNameInvalid_f:=$8
+
+// Open external database.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+UTIL_ERR_HandlerInstall 
+
+// Check to see if this method's already been logged.
+Begin SQL
+SELECT COUNT( ID )
+FROM VC_BadPathLog
+WHERE methodPath = :$methodPath_t
+INTO :$exists_l;
+End SQL
+
+If ($exists_l=0)
+// It does not exist, create it.
+Begin SQL
+INSERT INTO VC_BadPathLog 
+(
+   methodPath,
+   pathType,
+   tableName,
+   objectName,
+   formObjectName,
+   tableNameInvalid,
+   objectNameInvalid,
+   formObjectNameInvalid,
+   userWarned
+)
+VALUES
+(
+   :$methodPath_t,
+   :$methodType_l,
+   :$tableName_t,
+   :$objectName_t,
+   :$formObjectName_t,
+   :$tableNameInvalid_f,
+   :$ObjectNameInvalid_f,
+   :$FormObjectNameInvalid_f,
+   False
+);
+End SQL
+Else 
+// It already exists, warn the user again.
+Begin SQL
+UPDATE VC_BadPathLog
+SET userWarned = FALSE
+WHERE methodPath = :$methodPath_t;
+End SQL
+End if 
+
+$error_l:=UTIL_ERR_HandlerRemove 
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+$0:=$error_l

@@ -1,0 +1,19 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+C_TEXT($1;$DOAPath_t)
+
+C_TEXT($0;$systemPath_t)
+
+C_TEXT($filePathPosix_t)
+
+$DOAPath_t:=$1
+
+// Design Object Access paths are POSIX compliant, only need to:
+
+//   -make absolute; "Convert path POSIX to" system requires absolute paths.
+$filePathPosix_t:=<>VC_SourcerootPOSIX_t+"/"+$DOAPath_t
+//   -convert to System.
+$systemPath_t:=Convert path POSIX to system($filePathPosix_t;*)// Must pass the * because Design Object Access paths are encoded.
+//   -add a file extension.
+$systemPath_t:=$systemPath_t+".txt"
+
+$0:=$systemPath_t

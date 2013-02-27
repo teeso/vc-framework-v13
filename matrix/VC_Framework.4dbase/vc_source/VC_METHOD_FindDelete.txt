@@ -1,0 +1,122 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/11/12, 16:50:52
+// ----------------------------------------------------
+// Description:
+//   Search for methods that have been deleted.
+//
+//   Note: this method searches every method in the
+//   database, every time. In large databases the
+//   liklehood of a progress bar appearing is quite
+//   high. I don't want a progress bar to open every
+//   time the code is checked. So I removed the
+//   progress module from this method (and also
+//   optimized it to be faster).
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_LONGINT($numMethods_l;$currentMethod_l;$dontcare_l;$zeroStamp_l;$pos_l;$start_l)
+C_TEXT($currentMethodPath_t;$newAction_t;$stateFilter_t)
+C_BOOLEAN($methodExists_f)
+
+ARRAY TEXT($methodsInDatabase_at;0)
+ARRAY TEXT($methodsInTable_at;0)
+
+// METHOD GET PATHS requires a variable. Though I want to just
+// get all methods I still need a variable, can't just pass 0.
+$zeroStamp_l:=0
+
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+// Get all active records.
+// I.e. ignore previously deleted methods.
+$stateFilter_t:=<>VC_METHOD_STATE_Active_t
+UTIL_ERR_HandlerInstall 
+Begin SQL
+SELECT methodPath
+FROM VC_Methods
+WHERE state = :$stateFilter_t
+INTO :$methodsInTable_at;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+
+If ($error_l=0)
+
+$numMethods_l:=Size of array($methodsInTable_at)
+
+If ($numMethods_l>0)
+
+// I will compare every method in the database to the records in the component table.
+METHOD GET PATHS(Path All objects ;$methodsInDatabase_at;$zeroStamp_l;*)
+
+// Sort the arrays to make the search faster. The majority of the
+// time the first element searched should match since deletes and
+// renames are ralatively rare.
+SORT ARRAY($methodsInTable_at)
+SORT ARRAY($methodsInDatabase_at)
+
+$currentMethod_l:=1
+
+// Loop over each method to check...
+While (($currentMethod_l<=$numMethods_l) & ($error_l=0))
+
+$currentMethodPath_t:=$methodsInTable_at{$currentMethod_l}
+
+// ====================================================================
+// See if the method still exists in the database.
+
+// NOTE: I created UTIL_MethodExists to do this, but
+// this loop is already slow. Removing the subroutine
+// call sped it up a lot. I further optimized it with
+// a sorted search.
+$pos_l:=Find in array($methodsInDatabase_at;$currentMethodPath_t;$start_l)
+If ($pos_l>0)
+// Since the arrays are sorted (and method names are unique), I can
+// start the next search after this element.
+$start_l:=$pos_l+1
+$methodExists_f:=True
+Else 
+$methodExists_f:=False
+End if 
+// ====================================================================
+
+If (Not($methodExists_f))
+// The method no longer exists in the database, mark it for delete.
+$newAction_t:=<>VC_METHOD_ACTION_Delete_t
+UTIL_ERR_HandlerInstall 
+Begin SQL
+UPDATE VC_Methods
+SET action = :$newAction_t
+WHERE methodPath = :$currentMethodPath_t;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+// Only increment if there was no error (in case I want to refer back to where I failed).
+If ($error_l=0)
+$currentMethod_l:=$currentMethod_l+1
+End if 
+
+End while 
+
+End if 
+
+End if 
+
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+End if 
+
+$0:=$error_l

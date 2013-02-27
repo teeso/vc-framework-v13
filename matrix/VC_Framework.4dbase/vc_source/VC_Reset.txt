@@ -1,0 +1,37 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/11/12, 17:56:33
+// ----------------------------------------------------
+// Description:
+//   Completely reset code export, reset method stamp to 0.
+//
+//   This can force a full code dump.
+//
+//   Note: executes on server.
+//
+//   Called by Macro.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($error_l)
+
+C_BOOLEAN(<>VC_Enabled_f)
+
+UTIL_ERR_Startup 
+
+If (<>VC_Enabled_f)
+<>VC_LastMethodStamp_l:=0
+$error_l:=VC_LOG_Clear 
+If ($error_l=0)
+$error_l:=VC_METHODS_Clear 
+End if 
+Else 
+// This should be impossible, because you have to open
+// a method in order to run the the macro that calls
+// this method...opening a method launches the component.
+$error_l:=<>ERR_VC_NotEnabled_l
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t)
+End if 

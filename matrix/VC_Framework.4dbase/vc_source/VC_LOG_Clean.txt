@@ -1,0 +1,88 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/20/12, 13:35:53
+// ----------------------------------------------------
+// Description:
+//   Remove any paths from the log table that no longer
+//   exist in the database (means the user fixed the
+//   problem).
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_TEXT($methodPath_t)
+C_LONGINT($i;$limit_l;$dontcare_l)
+C_BOOLEAN($methodExists_f)
+
+ARRAY TEXT($methodPaths_at;0)
+
+// Open external database.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+// Get all method paths.
+UTIL_ERR_HandlerInstall 
+Begin SQL
+SELECT methodPath
+FROM VC_BadPathLog
+INTO :$methodPaths_at;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+
+// Check to see if each path still exists in the database.
+If ($error_l=0)
+$limit_l:=Size of array($methodPaths_at)
+$i:=1
+
+If ($limit_l>0)
+
+While (($i<=$limit_l) & ($error_l=0))
+$methodPath_t:=$methodPaths_at{$i}
+
+// The first time this is called, use METHOD GET PATHS;
+// after that just cache the results, it's really slow
+// to call it over and over.
+// There's some risk of missing a new method by doing
+// this but it would be caught the next time around
+// anyway (and the only way to get a new method with an
+// invalid method name is drag and drop from another DB).
+If ($i=1)
+$methodExists_f:=UTIL_MethodExists ($methodPath_t)
+Else 
+$methodExists_f:=UTIL_MethodExists ($methodPath_t;True)
+End if 
+
+// If the path no longer exists in the database, delete it from the log table.
+If ($methodExists_f=False)
+UTIL_ERR_HandlerInstall 
+Begin SQL
+DELETE FROM VC_BadPathLog
+WHERE methodPath = :$methodPath_t;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+If ($error_l=0)
+$i:=$i+1
+End if 
+
+End while 
+
+End if 
+End if 
+
+// Close external database.
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+End if 
+
+$0:=$error_l

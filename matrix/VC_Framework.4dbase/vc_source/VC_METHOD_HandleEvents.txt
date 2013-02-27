@@ -1,0 +1,151 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/11/12, 17:01:44
+// ----------------------------------------------------
+// Description:
+//   Handle creating new methods on disk, updating them,
+//   or deleting methods no longer in the database.
+//
+//   Warning: paths should be validated before calling
+//   this method (see VC_METHOD_ValidateAll). I.e.
+//   don't call this method with invalid paths.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_LONGINT($numMethods_l;$currentMethod_l;$progThreshold_l;$progID_l;$dontcare_l)
+C_TEXT($progTitle_t;$currentMethodPath_t;$currentMethodAction_t;$newAction_t;$newState_t;$filePath_t)
+C_REAL($progress_r)
+C_BOOLEAN($actionIsOK_f)
+
+ARRAY TEXT($methodPaths_at;0)
+ARRAY TEXT($methodActions_at;0)
+
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+// Get all records that have an action.
+UTIL_ERR_HandlerInstall 
+Begin SQL
+SELECT methodPath, action
+FROM VC_Methods
+WHERE NOT action = ''
+INTO :$methodPaths_at, :$methodActions_at;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+
+If ($error_l=0)
+
+$numMethods_l:=Size of array($methodPaths_at)
+
+If ($numMethods_l>0)
+$progThreshold_l:=1000
+$progTitle_t:=<>VC_ComponentName_t+" Processing Methods"
+$progID_l:=PROG_Create ($progTitle_t;$numMethods_l;$progThreshold_l)
+
+$currentMethod_l:=1
+
+// Loop over each method to check...
+While (($currentMethod_l<=$numMethods_l) & ($error_l=0))
+
+$currentMethodPath_t:=$methodPaths_at{$currentMethod_l}
+$currentMethodAction_t:=$methodActions_at{$currentMethod_l}
+
+$progress_r:=$currentMethod_l/$numMethods_l
+PROG_Update ($progID_l;$progress_r;$currentMethod_l)
+
+// VC software deals with files, not "method paths" so convert
+// the DOA method path to the file path and pass that to the
+// implementing host.
+$filePath_t:=VC_UTIL_DOAPathToSystem ($currentMethodPath_t)
+
+// Handle the action.
+Case of 
+: ($currentMethodAction_t=<>VC_METHOD_ACTION_Update_t)
+// Call back to implementing host to see if it is ok to update this file.
+$actionIsOK_f:=VC_CALL_DEVHOOK_Update ($filePath_t)
+If ($actionIsOK_f)
+$error_l:=VC_METHOD_Save ($currentMethodPath_t)
+Else 
+$error_l:=<>ERR_METH_UpdateHookFail_l
+End if 
+
+: ($currentMethodAction_t=<>VC_METHOD_ACTION_Create_t)
+// Call back to Implementing host to see if it is ok to create this file.
+$actionIsOK_f:=VC_CALL_DEVHOOK_Create ($filePath_t)
+If ($actionIsOK_f)
+$error_l:=VC_METHOD_Save ($currentMethodPath_t)
+Else 
+$error_l:=<>ERR_METH_CreateHookFail_l
+End if 
+
+: ($currentMethodAction_t=<>VC_METHOD_ACTION_Delete_t)
+// Call back to Implementing host to see if it is ok to delete this file.
+$actionIsOK_f:=VC_CALL_DEVHOOK_Delete ($filePath_t)
+If ($actionIsOK_f)
+$error_l:=VC_METHOD_Delete ($currentMethodPath_t)
+Else 
+$error_l:=<>ERR_METH_DeleteHookFail_l
+End if 
+
+End case 
+
+
+If ($error_l=0)
+// If the action was processed correctly, clear it.
+$newAction_t:=""
+UTIL_ERR_HandlerInstall 
+Begin SQL
+UPDATE VC_Methods
+SET action = :$newAction_t
+WHERE methodPath = :$currentMethodPath_t;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+
+If ($error_l=0)
+If ($currentMethodAction_t=<>VC_METHOD_ACTION_Delete_t)
+// If the method was deleted, mark it as such so it can be ignored.
+
+// It's true this could probably be combined with the previous update
+// as a micro-optimization but I prefer the action and state to be
+// treated separately.
+// This should be rare enough to not pose a performance issue.
+UTIL_ERR_HandlerInstall 
+$newState_t:=<>VC_METHOD_STATE_Deleted_t
+Begin SQL
+UPDATE VC_Methods
+SET state = :$newState_t
+WHERE methodPath = :$currentMethodPath_t;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+End if 
+
+// Only increment if there was no error (in case I want to refer back to where I failed).
+If ($error_l=0)
+$currentMethod_l:=$currentMethod_l+1
+End if 
+
+End while 
+
+End if 
+
+End if 
+
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+End if 
+
+$0:=$error_l

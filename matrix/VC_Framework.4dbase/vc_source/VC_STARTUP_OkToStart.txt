@@ -1,0 +1,62 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/05/12, 16:17:12
+// ----------------------------------------------------
+// Description:
+//   This method is used to determine if VC_OnStartup
+//   should run.
+// --[HEADEREND]---------------------------------------
+C_BOOLEAN($0;$okToStart_f)
+
+C_BOOLEAN(<>VC_Enabled_f;<>VC_ERROR_F;<>VC_StartupExecuted_f)
+
+$okToStart_f:=False
+
+// This is just to prevent multiple processes from running
+// the startup code.
+// I'm not using a semaphore on purpose, because I don't
+// want those processes to wait, this is purely first come,
+// first served, run this once.  If I used a semaphore I'd
+// have to leave it set forever.
+If (Not(<>VC_StartupExecuted_f))
+<>VC_StartupExecuted_f:=True
+
+// <>VC_StartupExecuted_f is different than <>VC_Enabled_f.
+// The startup code might run, but fail to enable the module.
+// Again, I only want to try once (for now).
+
+// Check to see if component hasn't been started yet.
+If (<>VC_Enabled_f=False)
+$okToStart_f:=True
+End if 
+
+// Never run startup code if an error has occurred.
+If (<>VC_ERROR_F)
+$okToStart_f:=False
+End if 
+
+// Never run startup code in compiled mode, Design Object Access
+// cannot be used in compiled mode.
+If (Is compiled mode)
+$okToStart_f:=False
+End if 
+
+Else 
+// Another process is already running the startup code.
+$okToStart_f:=False
+End if 
+
+If (False)
+// Temporary for dev.
+If ($okToStart_f)
+CONFIRM("Start export process?")
+If (OK=1)
+$okToStart_f:=True
+Else 
+$okToStart_f:=False
+End if 
+End if 
+End if 
+
+$0:=$okToStart_f

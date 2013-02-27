@@ -1,0 +1,182 @@
+﻿//%attributes = {"lang":"en","invisible":true,"executedOnServer":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/20/12, 16:53:42
+// ----------------------------------------------------
+// Description:
+//   Save the error log to disk.
+//
+//   Note this is a log of invalid method names
+//  (including table, form, and object names).
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_TEXT(<>VC_EXT_LogFile_t;$prefix_t;$message_t;$header_t;$methodPath_t;$tableName_t;$objectName_t;$formObjectName_t;$endl_t;$tab_t)
+C_TIME($docRef_h)
+C_BLOB($message_b)
+C_LONGINT($i;$limit_l;$dontcare_l;$methodType_l)
+C_BOOLEAN($tableNameInvalid_f;$ObjectNameInvalid_f;$FormObjectNameInvalid_f)
+
+ARRAY TEXT($methodPaths_at;0)
+ARRAY LONGINT($methodTypes_al;0)
+ARRAY TEXT($tableNames_at;0)
+ARRAY TEXT($objectNames_at;0)
+ARRAY TEXT($formObjectNames_at;0)
+ARRAY BOOLEAN($tableNameInvalid_af;0)
+ARRAY BOOLEAN($ObjectNameInvalid_af;0)
+ARRAY BOOLEAN($FormObjectNameInvalid_af;0)
+
+$endl_t:=Char(Carriage return )
+$tab_t:=Char(Tab )
+
+// Open external database.
+$error_l:=VC_EXT_Open 
+
+If ($error_l=0)
+
+// Get the log data.
+UTIL_ERR_HandlerInstall 
+Begin SQL
+SELECT
+   methodPath,
+   pathType,
+   tableName,
+   objectName,
+   formObjectName,
+   tableNameInvalid,
+   objectNameInvalid,
+   formObjectNameInvalid
+FROM VC_BadPathLog
+INTO
+   :$methodPaths_at,
+   :$methodTypes_al,
+   :$tableNames_at,
+   :$objectNames_at,
+   :$formObjectNames_at,
+   :$tableNameInvalid_af,
+   :$ObjectNameInvalid_af,
+   :$FormObjectNameInvalid_af;
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+$dontcare_l:=VC_EXT_Close 
+End if 
+
+If ($error_l=0)
+
+// Delete any previous log file.
+If (Test path name(<>VC_EXT_LogFile_t)=Is a document )
+DELETE DOCUMENT(<>VC_EXT_LogFile_t)
+End if 
+
+// Create new log file.
+$docRef_h:=Create document(<>VC_EXT_LogFile_t)
+
+If (OK=1)
+
+// Insert the BOM to make sure the file is UTF-8.
+SET BLOB SIZE($bom_b;3)
+$bom_b{0}:=239// EF (UTF-8)
+$bom_b{1}:=187// BB (UTF-8)
+$bom_b{2}:=191// BF (UTF-8)
+SEND PACKET($docRef_h;$bom_b)
+
+// Insert column headers
+$header_t:="Method Path"+$tab_t+"Error"+$endl_t
+CONVERT FROM TEXT($header_t;"UTF-8";$message_b)
+SEND PACKET($docRef_h;$message_b)
+
+// Loop over each log entry and export to the log file.
+$i:=1
+$limit_l:=Size of array($methodPaths_at)
+
+If ($limit_l>0)
+While (($i<=$limit_l) & ($error_l=0))
+
+$methodPath_t:=$methodPaths_at{$i}
+$methodType_l:=$methodTypes_al{$i}
+$tableName_t:=$tableNames_at{$i}
+$objectName_t:=$objectNames_at{$i}
+$formObjectName_t:=$formObjectNames_at{$i}
+$tableNameInvalid_f:=$tableNameInvalid_af{$i}
+$ObjectNameInvalid_f:=$ObjectNameInvalid_af{$i}
+$FormObjectNameInvalid_f:=$FormObjectNameInvalid_af{$i}
+
+$prefix_t:=$methodPath_t+$tab_t
+$message_t:=""
+
+// Use the method type to determine which kinds of errors are possible.
+Case of 
+: ($methodType_l=Path Project method )
+// For a project method there can be only one error (object name).
+ASSERT($tableNameInvalid_f=False)
+ASSERT($FormObjectNameInvalid_f=False)
+ASSERT($ObjectNameInvalid_f=True)
+
+// Only one possible error.
+$message_t:=$prefix_t+"Project Method name '"+$objectName_t+"' is not valid."+$endl_t
+
+
+: ($methodType_l=Path Table form )
+// For a table form there are three possible errors: table name, form name, and object name.
+If ($tableNameInvalid_f=True)
+$message_t:=$prefix_t+"Table name '"+$tableName_t+"' is not valid."+$endl_t
+End if 
+If ($ObjectNameInvalid_f=True)
+$message_t:=$message_t+$prefix_t+"Form name '"+$objectName_t+"' is not valid."+$endl_t
+End if 
+If ($FormObjectNameInvalid_f=True)
+$message_t:=$message_t+$prefix_t+"Object name '"+$formObjectName_t+"' is not valid."+$endl_t
+End if 
+
+
+: ($methodType_l=Path Project form )
+// For a Project Form there are two possible errors: form name and object name.
+ASSERT($tableNameInvalid_f=False)
+
+If ($ObjectNameInvalid_f=True)
+$message_t:=$message_t+$prefix_t+"Form name '"+$objectName_t+"' is not valid."+$endl_t
+End if 
+If ($FormObjectNameInvalid_f=True)
+$message_t:=$message_t+$prefix_t+"Object name '"+$formObjectName_t+"' is not valid."+$endl_t
+End if 
+
+
+: ($methodType_l=Path Trigger )
+// For a trigger method there can be only one error (table name).
+ASSERT($ObjectNameInvalid_f=False)
+ASSERT($FormObjectNameInvalid_f=False)
+ASSERT($tableNameInvalid_f=True)
+
+$message_t:=$prefix_t+"Table name '"+$tableName_t+"' is not valid."+$endl_t
+
+Else 
+$error_l:=<>ERR_METH_BadType_l
+UTIL_ERR_ErrorMethod_t:=Current method name
+End case 
+
+If ($error_l=0)
+// Insert log entry (don't forgot to convert to UTF-8!).
+CONVERT FROM TEXT($message_t;"UTF-8";$message_b)
+SEND PACKET($docRef_h;$message_b)
+
+$i:=$i+1
+End if 
+
+End while 
+
+End if 
+CLOSE DOCUMENT($docRef_h)
+End if 
+
+End if 
+
+$0:=$error_l

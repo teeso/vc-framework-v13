@@ -1,0 +1,39 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/06/12, 15:01:43
+// ----------------------------------------------------
+// Description:
+//   Start stored procedure to monitor code changes.
+//
+//   Note: there can be only one.
+//   Note: executes on server.
+//
+//   Called by Macro.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($stack_l;$PID_l;$error_l)
+C_TEXT($methodName_t;$processName_t)
+
+C_BOOLEAN(<>VC_Enabled_f)
+
+If (<>VC_Enabled_f)
+
+$stack_l:=1024*1024
+$methodName_t:="VC_MON_Process"
+$processName_t:=<>VC_ComponentName_t+" process"
+
+<>VC_StopMonitor_f:=False
+
+$PID_l:=New process($methodName_t;$stack_l;$processName_t;*)
+Else 
+UTIL_ERR_Startup 
+// This should be impossible, because you have to open
+// a method in order to run the the macro that calls
+// this method...opening a method launches the component.
+$error_l:=<>ERR_VC_NotEnabled_l
+UTIL_ERR_ErrorMethod_t:=Current method name
+End if 
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t)
+End if 

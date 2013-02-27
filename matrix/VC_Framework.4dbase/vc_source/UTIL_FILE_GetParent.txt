@@ -1,0 +1,33 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Mickaël Rottiers
+// Date and time: 03/27/08
+// ----------------------------------------------------
+// Description:
+//    Returns the path of the parent of the file or
+//    folder pointed by the Source Path
+// --[HEADEREND]---------------------------------------
+C_TEXT($1;$path_t)
+C_TEXT($0;$parent_t)
+C_LONGINT($n;$length_l)
+$path_t:=$1
+$length_l:=Length($path_t)
+$n:=$length_l
+
+If ($path_t[[$n]]=Folder separator )
+// The path points to a folde, ignore the trailing separator.
+$n:=$n-1
+End if 
+
+If ($n>0)
+While ($n>0) & ($path_t[[$n]]#Folder separator )
+$n:=$n-1
+End while 
+End if 
+$parent_t:=Substring($path_t;1;$n-1)
+
+// 4D commands always incldue the trailing separator (see Get 4D folder for example)
+$parent_t:=$parent_t+Folder separator 
+
+$0:=$parent_t
+

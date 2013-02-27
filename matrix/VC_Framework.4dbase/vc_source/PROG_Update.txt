@@ -1,0 +1,156 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 09/19/12, 11:40:48
+// ----------------------------------------------------
+// Description:
+//   (optional feature) Check to see if progress bar
+//   should be displayed.
+//
+//   Update progress bar, but only if it's being
+//   displayed.
+// 
+//   Note: The default message includes "x of y" as a
+//   prefix.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($1;$myProgressBarID_l)// Required
+C_REAL($2;$progress_r)// Required, used for Progress SET PROGRESS
+
+// I tried to sort these by the order in which they are likely to be passed.
+C_LONGINT($3;$currentItem_l)// Optional, used with Progress SET MESSAGE
+C_LONGINT($4;$totalItems_l)// Optional, used with Progress SET MESSAGE
+C_TEXT($5;$message_t)// optional
+C_TEXT($6;$title_t)// optional
+C_LONGINT($7;$threshold_l)// optional
+
+C_LONGINT($4DProgressBarID_l;$totalParams_l)
+C_TEXT($prefix_t)
+
+$myProgressBarID_l:=$1
+$progress_r:=$2
+
+// Make sure this progress bar exists.
+If (Find in array(PROG_IDs_al;$myProgressBarID_l)>-1)
+
+$currentItem_l:=0
+$totalItems_l:=0
+$message_t:=""
+$title_t:=""
+$threshold_l:=0
+
+$totalParams_l:=Count parameters
+If ($totalParams_l>=3)
+$currentItem_l:=$3
+If ($totalParams_l>=4)
+$totalItems_l:=$4
+If ($totalParams_l>=5)
+$message_t:=$5
+If ($totalParams_l>=6)
+$title_t:=$6
+If ($totalParams_l>=7)
+$threshold_l:=$7
+End if 
+End if 
+End if 
+End if 
+End if 
+
+// Get 4D Progress ID (could be 0 if not yet open)
+$4DProgressBarID_l:=PROG_4DIDs_al{$myProgressBarID_l}
+
+If ($4DProgressBarID_l=0)
+// Handle display of progress bar.
+
+// Get the threshold value.
+If ($totalParams_l>=7)
+PROG_Threshold_al{$myProgressBarID_l}:=$threshold_l
+Else 
+$threshold_l:=PROG_Threshold_al{$myProgressBarID_l}
+End if 
+
+// Check to see if the current job will take longer than the threshold.
+If (PROG_IsRequired ($myProgressBarID_l;$progress_r;$threshold_l))
+
+// If so open a progress bar.
+$4DProgressBarID_l:=Progress New 
+PROG_4DIDs_al{$myProgressBarID_l}:=$4DProgressBarID_l
+
+// Set the title.
+If ($totalParams_l>=6)
+PROG_Title_at{$myProgressBarID_l}:=$title_t
+Else 
+$title_t:=PROG_Title_at{$myProgressBarID_l}
+End if 
+Progress SET TITLE ($4DProgressBarID_l;$title_t)
+
+If (PROG_Displayed_f=False)
+// This is the first time the progress window has appeared in this process, let's position it.
+// Move it to the lower-right to make slightly less obtrusive. 
+Progress SET WINDOW VISIBLE (True;(Screen width-450);(Screen height-250))
+PROG_Displayed_f:=True
+End if 
+
+End if 
+
+End if // End Handle display of progress bar.
+
+
+
+// Handle update of progress bar *only* if it's being displayed.
+If ($4DProgressBarID_l#0)
+
+If (Not(Progress Stopped ($4DProgressBarID_l)))
+
+// Set the progress value...
+Progress SET PROGRESS ($4DProgressBarID_l;$progress_r)// 4D Progress requires value between 0 and 1
+PROG_Progress_ar{$myProgressBarID_l}:=$progress_r
+
+// Handle the title, only set if it's being updated.
+If ($totalParams_l>=6)
+Progress SET TITLE ($4DProgressBarID_l;$title_t)
+PROG_Title_at{$myProgressBarID_l}:=$title_t
+End if 
+
+// Handle the message.
+If ($totalParams_l>=3)
+$prefix_t:=String($currentItem_l)+" of "
+PROG_Current_al{$myProgressBarID_l}:=$currentItem_l
+
+// See if a new total was passed in.
+If ($totalParams_l>=4)
+PROG_Total_al{$myProgressBarID_l}:=$totalItems_l
+Else 
+$totalItems_l:=PROG_Total_al{$myProgressBarID_l}
+End if 
+
+// The prefix is "x of y"...
+$prefix_t:=$prefix_t+String($totalItems_l)
+
+// Check to see if a new message was passed in, of not use the previous one.
+If ($totalParams_l>=5)
+PROG_Message_at{$myProgressBarID_l}:=$message_t
+Else 
+$message_t:=PROG_Message_at{$myProgressBarID_l}
+End if 
+
+// Check to see if no message is being used at all.
+If ($message_t="")
+// There is no message, so just use the prefix.
+$message_t:=$prefix_t
+Else 
+// There is a message, concatenate the prefix.
+$message_t:=$prefix_t+": "+$message_t
+End if 
+
+Progress SET MESSAGE ($4DProgressBarID_l;$message_t)
+End if 
+
+End if 
+
+End if // End handle update of progress bar.
+
+Else 
+// The progress bar does not exist.
+// This is so unlikely, and this method will be called in loops,
+// I'd rather just ignore it as opposed to returning an error.
+End if 

@@ -1,0 +1,79 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 06/16/11, 18:12:04
+// ----------------------------------------------------
+// Description:
+//   Error module startup code.
+//
+//   See UTIL_ERR_GetErrorMessage for error descriptions.
+// --[HEADEREND]---------------------------------------
+
+UTIL_ERR_HandlerPrep 
+
+// This can be used to optionally track the method that caused an error.
+C_TEXT(UTIL_ERR_ErrorMethod_t)
+UTIL_ERR_ErrorMethod_t:=""
+
+// *****************
+// Error blocks already in use:
+//
+//   (I recommend reserving blocks of 100 for each module just to have a safe buffer)
+//
+//   -18000-18099 - VC_EXT_Pref_
+//   -18100-18199 - VC_EXT_
+//   -18200-18299 - VC_
+//   -18300-18399 - VC_METHOD_
+//   -19400-19499 - Global
+// *****************
+
+
+// *****************
+//   -19400-19499 - Global
+// *****************
+C_LONGINT(<>ERR_Unknown_l)
+C_LONGINT(<>ERR_4D_l)
+
+<>ERR_Unknown_l:=-19400
+<>ERR_4D_l:=-19401
+
+
+// *****************
+//   -18000-18099 - VC_EXT_Pref_
+// *****************
+C_LONGINT(<>ERR_PREF_NotFound_l)
+
+<>ERR_PREF_NotFound_l:=-18000
+
+
+// *****************
+//   -18100-18199 - VC_EXT_
+// *****************
+C_LONGINT(<>ERR_EXT_NotOpen_l)
+
+<>ERR_EXT_NotOpen_l:=-18100
+
+// *****************
+//   -18200-18299 - VC_
+// *****************
+C_LONGINT(<>ERR_VC_NotEnabled_l)
+
+<>ERR_VC_NotEnabled_l:=-18200
+
+
+// *****************
+//   -18300-18399 - VC_METHOD_
+// *****************
+C_LONGINT(<>ERR_METH_BadName_l)
+C_LONGINT(<>ERR_METH_BadType_l)
+C_LONGINT(<>ERR_METH_BadPathsFound_l)
+C_LONGINT(<>ERR_METH_UpdateHookFail_l)
+C_LONGINT(<>ERR_METH_CreateHookFail_l)
+C_LONGINT(<>ERR_METH_DeleteHookFail_l)
+
+<>ERR_METH_BadName_l:=-18300
+<>ERR_METH_BadType_l:=-18301
+<>ERR_METH_BadPathsFound_l:=-18302
+<>ERR_METH_UpdateHookFail_l:=-18303
+<>ERR_METH_CreateHookFail_l:=-18304
+<>ERR_METH_DeleteHookFail_l:=-18305

@@ -1,0 +1,22 @@
+﻿//%attributes = {"lang":"en","invisible":true,"shared":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 10/12/12, 11:20:51
+// ----------------------------------------------------
+// Description:
+//   Error handler for devhook callbacks. Really this
+//   only handles a single error: if the devhook
+//   doesn't exist, then the component behaves as
+//   CodeExport (plus deletes).
+//
+//   The important thing is the devhook host should
+//   trap *all other errors*.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($4DError_l)
+
+$4DError_l:=ERROR
+
+If ($4DError_l#-10508)
+// The Implementing host should handle all other errors.
+// This needs to bubble up and disable the export?
+End if 

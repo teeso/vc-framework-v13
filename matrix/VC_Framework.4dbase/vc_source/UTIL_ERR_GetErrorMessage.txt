@@ -1,0 +1,71 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 03/16/09, 17:07:07
+// ----------------------------------------------------
+// Description:
+//   Error message retreival for error handling module.
+//
+// --[HEADEREND]---------------------------------------
+C_LONGINT($1;$errorCode_l)
+
+C_TEXT($0;$errorMessage_t)
+
+C_TEXT($nullMessage_t)
+
+$errorCode_l:=$1
+
+$nullMessage_t:="Invalid error code."
+
+Case of 
+// *****************
+//   -19400-19499 - Global
+// *****************
+: ($errorCode_l=<>ERR_Unknown_l)
+$errorMessage_t:="Unknown error."
+: ($errorCode_l=<>ERR_4D_l)
+$errorMessage_t:="Internal 4D Error."
+
+
+// *****************
+//   -18000-18099 - VC_EXT_Pref_
+// *****************
+: ($errorCode_l=<>ERR_PREF_NotFound_l)
+$errorMessage_t:="Preference does not exist."
+
+
+// *****************
+//   -18100-18199 - VC_EXT_
+// *****************
+: ($errorCode_l=<>ERR_EXT_NotOpen_l)
+$errorMessage_t:="There are no open connections to close."
+
+// *****************
+//   -18200-18299 - VC_
+// *****************
+: ($errorCode_l=<>ERR_VC_NotEnabled_l)
+$errorMessage_t:="The component is not enabled."
+
+
+// *****************
+//   -18300-18399 - VC_METHOD_
+// *****************
+: ($errorCode_l=<>ERR_METH_BadName_l)
+$errorMessage_t:="Method name/path is invalid.  See: http://doc.4d.com/4Dv13/help/Title/en/page701.html"
+: ($errorCode_l=<>ERR_METH_BadType_l)
+$errorMessage_t:="Method type is invalid.  This should never happen unless a new type is added."
+: ($errorCode_l=<>ERR_METH_BadPathsFound_l)
+$errorMessage_t:="Warning: Some invalid paths found."
+
+: ($errorCode_l=<>ERR_METH_UpdateHookFail_l)
+$errorMessage_t:="Call to VC_DEVHOOK_Update failed, method will not be saved."
+: ($errorCode_l=<>ERR_METH_CreateHookFail_l)
+$errorMessage_t:="Call to VC_DEVHOOK_Create failed, method will not be saved."
+: ($errorCode_l=<>ERR_METH_DeleteHookFail_l)
+$errorMessage_t:="Call to VC_DEVHOOK_Delete failed, method will not be deleted."
+
+Else 
+$errorMessage_t:=$nullMessage_t
+End case 
+
+$0:=$errorMessage_t

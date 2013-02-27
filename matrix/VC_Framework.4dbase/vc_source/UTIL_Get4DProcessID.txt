@@ -1,0 +1,33 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 07/13/12, 16:42:46
+// ----------------------------------------------------
+// Description:
+//   Get the process ID of the 4D application (at the
+//   OS level).
+//
+//   WARNING: plug-in dependency on "MISC I" plug-in:
+//   http://sources.4d.com/trac/4d_keisuke/wiki/Plugins/MISC%20I
+//   As the plug-in call is only needed for building,
+//   EXECUTE FORMULA is used to remove the compiler
+//   dependency from the component.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$pidOf4D_l)
+
+C_TEXT($MiscI_t)
+
+ARRAY LONGINT($pluginNums_al;0)
+ARRAY TEXT($pluginNames_at;0)
+
+$MiscI_t:="MISC I"
+
+PLUGIN LIST($pluginNums_al;$pluginNames_at)
+
+If (Find in array($pluginNames_at;$MiscI_t)>-1)
+EXECUTE FORMULA("$pidOf4D_l:=PROCESS Get id ")
+Else 
+$pidOf4D_l:=-1
+End if 
+
+$0:=$pidOf4D_l

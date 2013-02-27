@@ -1,0 +1,7 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// Future nice-to-have features:
+// Add and remove macros depending on process state?  E.g.:
+//   -If the process is running, hide the start Macro.
+//   -If the process exits, restore the start Macro, hide the stop macro.
+// Show progress bar, error messages, and warnings on client in client-server.
+//   Note: will be ALL clients unless I start tracking users...
