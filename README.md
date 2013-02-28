@@ -10,14 +10,18 @@ The VC_Framework component can be extended to support revision control (RC) inte
 * VC_DEVHOOK_Update
 * VC_DEVHOOK_Delete
 
-The VC_Framework component will call those methods prior to saving/deleting the method. The callee can choose whether or not to allow the save as well as take any action necessary to notify the RC software of the change.
+The VC_Framework component will call thoee methods prior to saving/deleting the method. The callee can choose whether or not to allow the save as well as take any action necessary to notify the RC software of the change.
 
 ## Contents
 
-* The [Components](VC_Framework/tree/master/Components) folder contains the interpreted component suitable for installation in any [4D v13](http://www.4d.com/products/4dv13.html) database.
+* The [Components](VC_Framework/tree/master/Components) folder contains the "VC_Framework.4dbase" component suitable for installation in any [4D v13](http://www.4d.com/products/4dv13.html) database.
 * The [matrix](VC_Framework/tree/master/matrix) folder contains the component source code.
-* The [doc](VC_Framework/tree/master/doc) folder contains documentation about the component.
+* The [doc](VC_Framework/tree/master/doc) may contain documentation about the component...or I may use the Wiki...haven't decided yet :)
 
 ## Usage
 
-If you modify the matrix database, you should build a new component.  To build a new component, execute the BLD_Build method from the matrix database.
+Install the component, launch the host database in 4D, and open a method if none are open. This will launch the stored procedure to manage method export.
+
+Note: the first export may take some time in larger databases, but you only need to do this once.
+
+If you modify the matrix database, you should build a new component.  To build a new component, execute the BLD_Build method from the matrix database (the matrix database uses the ["BLD.4dbase" component](https://github.com/4D/interpreted-build).
