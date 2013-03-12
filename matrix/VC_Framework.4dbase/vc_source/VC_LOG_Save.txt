@@ -14,7 +14,7 @@ C_LONGINT($0;$error_l)
 C_TEXT(<>VC_EXT_LogFile_t;$prefix_t;$message_t;$header_t;$methodPath_t;$tableName_t;$objectName_t;$formObjectName_t;$endl_t;$tab_t)
 C_TIME($docRef_h)
 C_BLOB($message_b)
-C_LONGINT($i;$limit_l;$dontcare_l;$methodType_l)
+C_LONGINT($i;$limit_l;$methodType_l)
 C_BOOLEAN($tableNameInvalid_f;$ObjectNameInvalid_f;$FormObjectNameInvalid_f)
 
 ARRAY TEXT($methodPaths_at;0)
@@ -67,7 +67,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 If ($error_l=0)

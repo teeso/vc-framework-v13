@@ -11,7 +11,7 @@ C_POINTER($1;$pathsToValidate_p_at)
 
 C_LONGINT($0;$error_l)
 
-C_LONGINT($numPaths_l;$currentPath_l;$progID_l;$progThreshold_l;$dontcare_l)
+C_LONGINT($numPaths_l;$currentPath_l;$progID_l;$progThreshold_l)
 C_REAL($progress_r)
 C_TEXT($currentMethodPath_t;$progTitle_t)
 C_BOOLEAN($badPathsFound_f)
@@ -75,7 +75,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 If ($badPathsFound_f)

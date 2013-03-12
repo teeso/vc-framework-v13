@@ -11,7 +11,7 @@ C_POINTER($1;$warnNeeded_p_f)
 
 C_LONGINT($0;$error_l)
 
-C_LONGINT($dontcare_l;$warnNeeded_l)
+C_LONGINT($warnNeeded_l)
 
 $warnNeeded_p_f:=$1
 
@@ -42,7 +42,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 $0:=$error_l

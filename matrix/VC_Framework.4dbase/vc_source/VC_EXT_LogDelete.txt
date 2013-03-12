@@ -10,8 +10,6 @@ C_TEXT($1;$methodPath_t)
 
 C_LONGINT($0;$error_l)
 
-C_LONGINT($dontcare_l)
-
 $methodPath_t:=$1
 
 // Open external database.
@@ -33,7 +31,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 Else 

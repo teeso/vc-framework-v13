@@ -17,7 +17,7 @@ C_BOOLEAN($8;$FormObjectNameInvalid_f)
 
 C_LONGINT($0;$error_l)
 
-C_LONGINT($exists_l;$dontcare_l)
+C_LONGINT($exists_l)
 
 $methodPath_t:=$1
 $methodType_l:=$2
@@ -89,7 +89,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 Else 

@@ -11,7 +11,7 @@
 C_LONGINT($0;$error_l)
 
 C_TEXT($methodPath_t)
-C_LONGINT($i;$limit_l;$dontcare_l)
+C_LONGINT($i;$limit_l)
 C_BOOLEAN($methodExists_f)
 
 ARRAY TEXT($methodPaths_at;0)
@@ -80,7 +80,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 End if 

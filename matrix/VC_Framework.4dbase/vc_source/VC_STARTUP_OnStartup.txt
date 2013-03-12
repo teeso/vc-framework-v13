@@ -16,7 +16,7 @@
 //
 //   Note: executes on server.
 // --[HEADEREND]---------------------------------------
-C_LONGINT($error_l;$dontcare_l)
+C_LONGINT($error_l)
 C_TEXT($externalDataFolderName_t;$externalDataFolderPath_t;$externalDataFile_t;$sourceFolderName_t;$sourceFolderPath_t;$logFileName_t)
 
 // These are used to set up the global vars.
@@ -181,7 +181,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 

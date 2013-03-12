@@ -16,7 +16,7 @@ C_POINTER($1;$methodsToSave_p_at)
 
 C_LONGINT($0;$error_l)
 
-C_LONGINT($numMethods_l;$currentMethod_l;$progID_l;$progThreshold_l;$numFound_l;$dontcare_l)
+C_LONGINT($numMethods_l;$currentMethod_l;$progID_l;$progThreshold_l;$numFound_l)
 C_TEXT($currentMethodPath_t;$progTitle_t;$foundAction_t;$foundState_t;$newAction_t;$newState_t)
 C_REAL($progress_r)
 
@@ -146,7 +146,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 End if 

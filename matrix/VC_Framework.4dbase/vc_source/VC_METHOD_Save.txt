@@ -47,7 +47,9 @@ End if
 // at the file level.  In points of fact git doesn't support bare CR at
 // all.  We could be platform specific, and do CRLF for Windows and LF
 // for Mac but this is messy.  Decided to just standardize on LF.
+If ($error_l=0)
 $currentMethodBody_t:=Replace string($currentMethodBody_t;Char(Carriage return );Char(Line feed ))
+End if 
 
 
 // == Convert the code ===================================================

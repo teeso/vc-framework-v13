@@ -1,4 +1,4 @@
-Current Version: 35686
+Current Version: 36242
 
 This file represents the version number of the component.
 

@@ -13,7 +13,7 @@
 // --[HEADEREND]---------------------------------------
 C_LONGINT($0;$error_l)
 
-C_LONGINT($numMethods_l;$currentMethod_l;$progThreshold_l;$progID_l;$dontcare_l)
+C_LONGINT($numMethods_l;$currentMethod_l;$progThreshold_l;$progID_l)
 C_TEXT($progTitle_t;$currentMethodPath_t;$currentMethodAction_t;$newAction_t;$newState_t;$filePath_t)
 C_REAL($progress_r)
 C_BOOLEAN($actionIsOK_f)
@@ -143,7 +143,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 End if 

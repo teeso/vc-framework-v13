@@ -9,8 +9,6 @@
 // --[HEADEREND]---------------------------------------
 C_LONGINT($0;$error_l)
 
-C_LONGINT($dontcare_l)
-
 C_TEXT(<>VC_EXT_LOGFILE_T)
 
 // Delete the log file.
@@ -40,7 +38,7 @@ Else
 UTIL_ERR_ErrorMethod_t:=Current method name
 // Still close the external database if another problem
 // occurred but don't overwrite the error code.
-$dontcare_l:=VC_EXT_Close 
+VC_EXT_CloseIfError 
 End if 
 
 Else 
