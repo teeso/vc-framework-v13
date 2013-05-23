@@ -1,4 +1,5 @@
-Current Version: <!--4DTEXT String(CurrentVersion_l) -->
+Component Version: <!--4DTEXT String(CurrentVersion_l) -->
+4D Version: <!--4DTEXT Current4DVersion_t -->
 
 This file represents the version number of the component.
 

@@ -109,6 +109,8 @@ If (Test path name(<>VC_DataFile_t+".4db")#Is a document )
 
 // Create the database.
 $statement_t:="CREATE DATABASE IF NOT EXISTS DATAFILE '"+<>VC_DataFile_t+"';"
+// Workaround for ACI0082193, CREATE DATABASE doesn't support absolute path.
+$statement_t:="CREATE DATABASE IF NOT EXISTS DATAFILE '"+$externalDataFolderName_t+Folder separator +$externalDataFile_t+"';"
 UTIL_ERR_HandlerInstall 
 Begin SQL
 EXECUTE IMMEDIATE :$statement_t;
