@@ -16,7 +16,6 @@ The VC_Framework component will call thoee methods prior to saving/deleting the 
 
 * The [Components](https://github.com/4D/vc-framework-v13/tree/master/Components) folder contains the "VC_Framework.4dbase" component suitable for installation in any [4D v13](http://www.4d.com/products/4dv13.html) database.
 * The [matrix](https://github.com/4D/vc-framework-v13/tree/master/matrix) folder contains the component source code.
-* The [doc](https://github.com/4D/vc-framework-v13/tree/master/doc) folder may contain documentation about the component...or I may use the Wiki...haven't decided yet :)
 
 ## Usage
 
