@@ -32,7 +32,9 @@ $methodPath_t:=$1
 If ($useCache_f=False)
 $zeroStamp_l:=0
 ARRAY TEXT(currentPaths_at;0)
+ON ERR CALL("__Scratch")
 METHOD GET PATHS(Path All objects ;currentPaths_at;$zeroStamp_l;*)
+ON ERR CALL("")
 End if 
 
 If (Find in array(currentPaths_at;$methodPath_t)>0)

@@ -20,7 +20,9 @@ ARRAY TEXT($methodsToSave_at;0)
 $currentMethodStamp_l:=<>VC_LastMethodStamp_l
 
 // Get changed methods since last stamp.
+ON ERR CALL("__Scratch")
 METHOD GET PATHS(Path All objects ;$methodsToSave_at;$currentMethodStamp_l;*)
+ON ERR CALL("")
 
 If (Size of array($methodsToSave_at)>0)
 

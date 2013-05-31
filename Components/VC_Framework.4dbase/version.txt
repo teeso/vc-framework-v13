@@ -1,4 +1,4 @@
-Component Version: 36562
+Component Version: 36723
 4D Version: 13
 
 This file represents the version number of the component.

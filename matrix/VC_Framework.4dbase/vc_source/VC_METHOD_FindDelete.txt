@@ -50,7 +50,9 @@ $numMethods_l:=Size of array($methodsInTable_at)
 If ($numMethods_l>0)
 
 // I will compare every method in the database to the records in the component table.
+ON ERR CALL("__Scratch")
 METHOD GET PATHS(Path All objects ;$methodsInDatabase_at;$zeroStamp_l;*)
+ON ERR CALL("")
 
 // Sort the arrays to make the search faster. The majority of the
 // time the first element searched should match since deletes and
