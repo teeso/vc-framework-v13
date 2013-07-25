@@ -19,7 +19,7 @@ The VC_Framework component will call thoee methods prior to saving/deleting the 
 
 ## Usage
 
-Install the component, launch the host database in 4D, and open a method if none are open. This will launch the stored procedure to manage method export.
+Install the component (do NOT install an alias, you must install the component), launch the host database in 4D, and open a method if none are open. This will launch the stored procedure to manage method export.
 
 Note: the first export may take some time in larger databases, but you only need to do this once.
 
