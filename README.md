@@ -10,7 +10,7 @@ The VC_Framework component can be extended to support revision control (RC) inte
 * VC_DEVHOOK_Update
 * VC_DEVHOOK_Delete
 
-The VC_Framework component will call thoee methods prior to saving/deleting the method. The callee can choose whether or not to allow the save as well as take any action necessary to notify the RC software of the change.
+The VC_Framework component will call these methods prior to saving/deleting the method. The callee can choose whether or not to allow the save as well as take any action necessary to notify the RC software of the change.
 
 ## Contents
 
