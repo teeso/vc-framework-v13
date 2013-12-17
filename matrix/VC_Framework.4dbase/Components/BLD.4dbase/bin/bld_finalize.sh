@@ -4,10 +4,13 @@
 
 # Argument list:
 # 1 - 4D application process ID
+# 2 - Component name
+# 3 - Component folder
 
 # Global vars
 pidOf4D_l=$1
 component_name=$2
+component_folder=$3
 
 
 # Function declarations
@@ -23,23 +26,18 @@ pause(){
 
 
 bld_copyFiles(){
-
-	component_dir="./components/$component_name.4dbase"
-	sourbld_dir="./matrix/$component_name.4dbase"
-	
+	component_dir="./$component_folder/$component_name.4dbase"
+	source_dir="./matrix/$component_name.4dbase"
+		
 	# Files we need:
 	#   -4DB
 	#   -4DINDY
 	
 	echo 'Copying structure file...'
-	cp "$sourbld_dir/$component_name.4DB" "$component_dir/$component_name.4DB"
+	cp "$source_dir/$component_name.4DB" "$component_dir/$component_name.4DB"
 	
 	echo 'Copying structure index file...'
-	cp "$sourbld_dir/$component_name.4DIndy" "$component_dir/$component_name.4DIndy"
-	
-	echo 'Build complete!'
-
-	exit 0
+	cp "$source_dir/$component_name.4DIndy" "$component_dir/$component_name.4DIndy"
 }
 
 
@@ -76,9 +74,12 @@ bld_start(){
 # Begin actual script.
 
 # Check for Argument; if not passed script was probably called manually.
-if [ ! $# == 1 ]; then
+if [ ! $# == 3 ]; then
 	bld_usage
 else
 	bld_start
+	echo 'Build complete!'
+
+	exit 0
 fi
 

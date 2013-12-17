@@ -10,7 +10,7 @@ REM Check for Argument; if not passed script was probably called manually.
 IF "%1" EQU "" (GOTO BLD_USAGE) ELSE (GOTO BLD_START)
 
 :BLD_USAGE
-echo Do not execute this script manually, it is called by the componentImplementing component.
+echo Do not execute this script manually, it is called by the component.
 GOTO BLD_ERROR
 
 
@@ -46,7 +46,8 @@ GOTO BLD_CopyFiles
 
 :BLD_CopyFiles
 set componentName=%2
-set component_dir=.\Components\%componentName%.4dbase
+set componentFolder=%3
+set component_dir=.\%componentFolder%\%componentName%.4dbase
 set source_dir=.\matrix\%componentName%.4dbase
 
 REM Files we need:

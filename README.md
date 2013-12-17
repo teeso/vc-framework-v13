@@ -23,4 +23,4 @@ Install the component (do NOT install an alias, you must install the component),
 
 Note: the first export may take some time in larger databases, but you only need to do this once.
 
-If you modify the matrix database, you should build a new component.  To build a new component, execute the BLD_Build method from the matrix database (the matrix database uses the ["BLD.4dbase" component](https://github.com/4D/interpreted-build)).
+If you modify the matrix database, you should build a new component.  To build a new component, execute the BLD_Build method from the matrix database (the matrix database uses the ["BLD.4dbase" component](https://github.com/4D/interpreted-build-v13)).
