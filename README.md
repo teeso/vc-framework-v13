@@ -14,7 +14,9 @@ The VC_Framework component will call these methods prior to saving/deleting the 
 
 ## Contents
 
-* The [Components](https://github.com/4D/vc-framework-v13/tree/master/Components) folder contains the "VC_Framework.4dbase" component suitable for installation in any [4D v13](http://www.4d.com/products/4dv13.html) database.
+* The [Components](https://github.com/4D/vc-framework-v13/tree/master/Components) folder contains:
+** the "VC_Framework.4dbase" component suitable for installation in any [4D v13](http://www.4d.com/products/4dv13.html) database.
+** The "prog.4dbase" component, which extends 4D's Progress module to include a threshold for progress bar display. 
 * The [matrix](https://github.com/4D/vc-framework-v13/tree/master/matrix) folder contains the component source code.
 
 ## Usage
