@@ -19,6 +19,7 @@
 C_LONGINT($error_l)
 C_TEXT($externalDataFolderName_t;$externalDataFolderPath_t;$externalDataFile_t;$sourceFolderName_t;$sourceFolderPath_t;$logFileName_t)
 
+
 // These are used to set up the global vars.
 $externalDataFolderName_t:="vc_data"
 $externalDataFolderPath_t:=Get 4D folder(Database Folder ;*)+$externalDataFolderName_t

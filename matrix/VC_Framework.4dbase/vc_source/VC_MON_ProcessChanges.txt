@@ -59,7 +59,9 @@ If ($error_l=0)
 $error_l:=VC_METHOD_HandleEvents (->$methodsToSave_at)
 End if 
 
+If (VC_ProgInstalled_f)
 PROG_CloseAll 
+End if 
 
 // Check to see if the stamp changed and save it if so.
 If ($error_l=0)

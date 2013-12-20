@@ -21,6 +21,8 @@ The VC_Framework component will call these methods prior to saving/deleting the 
 
 Install the component (do NOT install an alias, you must install the component), launch the host database in 4D, and open a method if none are open. This will launch the stored procedure to manage method export.
 
+(Optional) Install the "prog.4dbase" component. VC_Framework will not show progress bars without this component.
+
 Note: the first export may take some time in larger databases, but you only need to do this once.
 
 If you modify the matrix database, you should build a new component.  To build a new component, execute the BLD_Build method from the matrix database (the matrix database uses the ["BLD.4dbase" component](https://github.com/4D/interpreted-build-v13)).

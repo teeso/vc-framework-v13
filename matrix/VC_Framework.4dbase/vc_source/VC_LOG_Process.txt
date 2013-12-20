@@ -16,9 +16,6 @@ C_BOOLEAN($warnNeeded_f)
 // Set up error handling module.
 UTIL_ERR_Startup 
 
-// Set up progress bar module.
-PROG_Startup 
-
 // This is an optimization; most of the following methods require
 // the external database, which means opening and closing the
 // connection over and over.  If I open a connection ahead of time,

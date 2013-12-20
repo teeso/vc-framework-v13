@@ -15,6 +15,8 @@
 // --[HEADEREND]---------------------------------------
 C_LONGINT(<>VC_LastMethodStamp_l)
 
+C_BOOLEAN(VC_ProgInstalled_f)
+
 C_LONGINT($error_l)
 C_TEXT($lastMethodStamp_t)
 C_BOOLEAN($showError_f)
@@ -22,8 +24,8 @@ C_BOOLEAN($showError_f)
 // Set up error handling module.
 UTIL_ERR_Startup 
 
-// Set up progress bar module.
-PROG_Startup 
+// Set up progress bar component.
+VC_ProgInstalled_f:=UTIL_ProgStartup 
 
 // Error messages are only displayed the first time; the
 // process will keep running even if there's an error in

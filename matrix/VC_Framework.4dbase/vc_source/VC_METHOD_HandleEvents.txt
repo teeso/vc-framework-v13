@@ -40,9 +40,12 @@ If ($error_l=0)
 $numMethods_l:=Size of array($methodPaths_at)
 
 If ($numMethods_l>0)
+
+If (VC_ProgInstalled_f)
 $progThreshold_l:=1000
 $progTitle_t:=<>VC_ComponentName_t+" Processing Methods"
 $progID_l:=PROG_Create ($progTitle_t;$numMethods_l;$progThreshold_l)
+End if 
 
 $currentMethod_l:=1
 
@@ -52,8 +55,10 @@ While (($currentMethod_l<=$numMethods_l) & ($error_l=0))
 $currentMethodPath_t:=$methodPaths_at{$currentMethod_l}
 $currentMethodAction_t:=$methodActions_at{$currentMethod_l}
 
+If (VC_ProgInstalled_f)
 $progress_r:=$currentMethod_l/$numMethods_l
 PROG_Update ($progID_l;$progress_r;$currentMethod_l)
+End if 
 
 // VC software deals with files, not "method paths" so convert
 // the DOA method path to the file path and pass that to the
