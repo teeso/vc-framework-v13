@@ -95,8 +95,14 @@ If ($error_l=0)
 $error_l:=VC_STARTUP_EXTSetup 
 End if 
 
+// Make sure all unqiue fields have indexes (required by 4D v13.5)
 If ($error_l=0)
 $error_l:=VC_STARTUP_EXTIndex 
+End if 
+
+// Set the initial stamp value, but don't overwrite if it already exists.
+If ($error_l=0)
+$error_l:=VC_EXT_PrefSet (<>VC_StampLabel_t;"0";False)
 End if 
 
 

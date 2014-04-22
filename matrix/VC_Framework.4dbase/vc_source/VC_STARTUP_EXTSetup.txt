@@ -106,12 +106,6 @@ UTIL_ERR_ErrorMethod_t:=Current method name
 VC_EXT_CloseIfError 
 End if 
 
-
-// Set the initial stamp value, but don't overwrite if it already exists.
-If ($error_l=0)
-$error_l:=VC_EXT_PrefSet (<>VC_StampLabel_t;"0";False)
-End if 
-
 End if 
 
 
