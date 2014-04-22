@@ -1,0 +1,96 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 04/18/14, 12:08:18
+// ----------------------------------------------------
+// Description:
+//   Since 13.5, 4D requires unique fields to be indexed.
+//   This method creates the necessary indexes.
+//
+//   This will  patch existing installations of
+//   VC_Framework and will not override the indexes if
+//   you added them yourself.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+// Connect to external database.
+$error_l:=VC_EXT_Open 
+
+// VC_Prefs_ID_index
+If ($error_l=0)
+If (Not(VC_EXT_IndexExists ("VC_Prefs_ID_index")))
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE INDEX VC_Prefs_ID_index ON VC_Prefs (ID);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+// VC_Prefs_prefName_index
+If ($error_l=0)
+If (Not(VC_EXT_IndexExists ("VC_Prefs_prefName_index")))
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE INDEX VC_Prefs_prefName_index ON VC_Prefs (prefName);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+// VC_Methods_ID_index
+If ($error_l=0)
+If (Not(VC_EXT_IndexExists ("VC_Methods_ID_index")))
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE INDEX VC_Methods_ID_index ON VC_Methods (ID);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+// VC_Methods_methodPath_index
+If ($error_l=0)
+If (Not(VC_EXT_IndexExists ("VC_Methods_methodPath_index")))
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE INDEX VC_Methods_methodPath_index ON VC_Methods (methodPath);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+// VC_BadPathLog_ID_index
+If ($error_l=0)
+If (Not(VC_EXT_IndexExists ("VC_BadPathLog_ID_index")))
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE INDEX VC_BadPathLog_ID_index ON VC_BadPathLog (ID);
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+//  VC_BadPathLog_methodPath_index
+If ($error_l=0)
+If (Not(VC_EXT_IndexExists ("VC_BadPathLog_methodPath_index")))
+UTIL_ERR_HandlerInstall 
+Begin SQL
+CREATE INDEX VC_BadPathLog_methodPath_index ON VC_BadPathLog (methodPath);
+
+End SQL
+$error_l:=UTIL_ERR_HandlerRemove 
+End if 
+End if 
+
+If ($error_l=0)
+// Close external database.
+$error_l:=VC_EXT_Close 
+Else 
+UTIL_ERR_ErrorMethod_t:=Current method name
+// Still close the external database if another problem
+// occurred but don't overwrite the error code.
+VC_EXT_CloseIfError 
+End if 
+
+$0:=$error_l
