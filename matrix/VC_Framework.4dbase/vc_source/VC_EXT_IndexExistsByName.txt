@@ -1,4 +1,4 @@
-﻿//%attributes = {"lang":"en"} comment added and reserved by 4D.
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
 // --[HEADERSTART]-------------------------------------
 // User name (OS): Joshua Fletcher
 // Date and time: 04/18/14, 17:57:37
@@ -7,23 +7,20 @@
 //   Check to see if index exists in VC_Data database.
 //
 // --[HEADEREND]---------------------------------------
-C_TEXT($1;$tableName_t)
-C_TEXT($2;$fieldName_t)
+C_TEXT($1;$indexName_t)
 
 C_BOOLEAN($0;$indexExists_f)
 
 C_LONGINT($found_l;$error_l)
 
-$tableName_t:=$1
-$fieldName_t:=$2
+$indexName_t:=$1
 
 $error_l:=VC_EXT_Open 
 
 Begin SQL
 SELECT COUNT( INDEX_ID )
 FROM _USER_IND_COLUMNS
-WHERE TABLE_NAME LIKE :$tableName_t
-AND COLUMN_NAME LIKE :$fieldName_t
+WHERE INDEX_NAME LIKE :$indexName_t
 INTO :$found_l;
 End SQL
 

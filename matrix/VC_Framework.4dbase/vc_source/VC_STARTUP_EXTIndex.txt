@@ -18,7 +18,7 @@ $error_l:=VC_EXT_Open
 
 // VC_Prefs_ID_index
 If ($error_l=0)
-If (Not(VC_EXT_IndexExists ("VC_Prefs_ID_index")))
+If (Not(VC_EXT_IndexExists ("VC_Prefs";"ID")))
 UTIL_ERR_HandlerInstall 
 Begin SQL
 CREATE INDEX VC_Prefs_ID_index ON VC_Prefs (ID);
@@ -29,7 +29,7 @@ End if
 
 // VC_Prefs_prefName_index
 If ($error_l=0)
-If (Not(VC_EXT_IndexExists ("VC_Prefs_prefName_index")))
+If (Not(VC_EXT_IndexExists ("VC_Prefs";"prefName")))
 UTIL_ERR_HandlerInstall 
 Begin SQL
 CREATE INDEX VC_Prefs_prefName_index ON VC_Prefs (prefName);
@@ -40,7 +40,7 @@ End if
 
 // VC_Methods_ID_index
 If ($error_l=0)
-If (Not(VC_EXT_IndexExists ("VC_Methods_ID_index")))
+If (Not(VC_EXT_IndexExists ("VC_Methods";"ID")))
 UTIL_ERR_HandlerInstall 
 Begin SQL
 CREATE INDEX VC_Methods_ID_index ON VC_Methods (ID);
@@ -51,7 +51,7 @@ End if
 
 // VC_Methods_methodPath_index
 If ($error_l=0)
-If (Not(VC_EXT_IndexExists ("VC_Methods_methodPath_index")))
+If (Not(VC_EXT_IndexExists ("VC_Methods";"methodPath")))
 UTIL_ERR_HandlerInstall 
 Begin SQL
 CREATE INDEX VC_Methods_methodPath_index ON VC_Methods (methodPath);
@@ -62,7 +62,7 @@ End if
 
 // VC_BadPathLog_ID_index
 If ($error_l=0)
-If (Not(VC_EXT_IndexExists ("VC_BadPathLog_ID_index")))
+If (Not(VC_EXT_IndexExists ("VC_BadPathLog";"ID")))
 UTIL_ERR_HandlerInstall 
 Begin SQL
 CREATE INDEX VC_BadPathLog_ID_index ON VC_BadPathLog (ID);
@@ -73,7 +73,7 @@ End if
 
 //  VC_BadPathLog_methodPath_index
 If ($error_l=0)
-If (Not(VC_EXT_IndexExists ("VC_BadPathLog_methodPath_index")))
+If (Not(VC_EXT_IndexExists ("VC_BadPathLog";"methodPath")))
 UTIL_ERR_HandlerInstall 
 Begin SQL
 CREATE INDEX VC_BadPathLog_methodPath_index ON VC_BadPathLog (methodPath);
