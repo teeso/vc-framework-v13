@@ -1,4 +1,1 @@
 ﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
-If (Not(VC_EXT_IndexExists ("VC_Prefs";"ID")))
-TRACE
-End if 

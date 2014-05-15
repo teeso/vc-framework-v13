@@ -17,7 +17,9 @@ C_TEXT($installedErrorHandler_t)
 
 $installedErrorHandler_t:=Method called on error
 
-If ($installedErrorHandler_t=UTIL_ERR_GenericHandler_t)
+// Note: allows custom error handlers to extend the generic error handler,
+// as long as they set a value in UTIL_ERR_4DError_l
+If (($installedErrorHandler_t=UTIL_ERR_GenericHandler_t) | (UTIL_ERR_4DError_l#0))
 // If the generic handler executed, UTIL_ERR_4DError_l will have the error code.
 If (UTIL_ERR_4DError_l#0)
 $error_l:=<>ERR_4D_l

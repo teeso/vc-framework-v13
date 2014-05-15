@@ -20,9 +20,11 @@ ARRAY TEXT($methodsToSave_at;0)
 $currentMethodStamp_l:=<>VC_LastMethodStamp_l
 
 // Get changed methods since last stamp.
-ON ERR CALL("__Scratch")
+UTIL_ERR_HandlerInstall ("VC_ERR_HandleMGP")
 METHOD GET PATHS(Path All objects ;$methodsToSave_at;$currentMethodStamp_l;*)
-ON ERR CALL("")
+$error_l:=UTIL_ERR_HandlerRemove 
+
+If ($error_l=0)
 
 If (Size of array($methodsToSave_at)>0)
 
@@ -41,6 +43,8 @@ End if
 // Determine create/update actions.
 If ($error_l=0)
 $error_l:=VC_METHOD_FindCreateUpdate (->$methodsToSave_at)
+End if 
+
 End if 
 
 End if 

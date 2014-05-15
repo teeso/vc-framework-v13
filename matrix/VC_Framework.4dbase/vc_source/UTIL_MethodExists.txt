@@ -18,7 +18,7 @@ C_BOOLEAN($2;$useCache_f)
 
 C_BOOLEAN($0;$methodExists_f)
 
-C_LONGINT($zeroStamp_l)
+C_LONGINT($zeroStamp_l;$error_l)
 
 If (Count parameters>1)
 $useCache_f:=$2
@@ -32,13 +32,21 @@ $methodPath_t:=$1
 If ($useCache_f=False)
 $zeroStamp_l:=0
 ARRAY TEXT(currentPaths_at;0)
-ON ERR CALL("__Scratch")
+
+UTIL_ERR_HandlerInstall ("VC_ERR_HandleMGP")
 METHOD GET PATHS(Path All objects ;currentPaths_at;$zeroStamp_l;*)
-ON ERR CALL("")
+$error_l:=UTIL_ERR_HandlerRemove 
+
 End if 
+
+If ($error_l=0)
 
 If (Find in array(currentPaths_at;$methodPath_t)>0)
 $methodExists_f:=True
+Else 
+$methodExists_f:=False
+End if 
+
 Else 
 $methodExists_f:=False
 End if 
