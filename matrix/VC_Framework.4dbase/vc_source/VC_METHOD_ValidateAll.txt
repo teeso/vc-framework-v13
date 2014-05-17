@@ -33,7 +33,7 @@ $error_l:=VC_EXT_Open
 
 If ($error_l=0)
 
-If (VC_ProgInstalled_f)
+If (VC_ProgInstalled_f & (<>VC_Quit_f=False))
 $progThreshold_l:=1000
 $progTitle_t:=<>VC_ComponentName_t+" Validating Method Paths"
 $progID_l:=PROG_Create ($progTitle_t;$numPaths_l;$progThreshold_l)
@@ -44,7 +44,7 @@ While (($currentPath_l>=1) & ($error_l=0))
 
 $currentMethodPath_t:=$pathsToValidate_p_at->{$currentPath_l}
 
-If (VC_ProgInstalled_f)
+If (VC_ProgInstalled_f & (<>VC_Quit_f=False))
 $progress_r:=($numPaths_l-$currentPath_l)/$numPaths_l
 PROG_Update ($progID_l;$progress_r;($numPaths_l-$currentPath_l)+1)
 End if 

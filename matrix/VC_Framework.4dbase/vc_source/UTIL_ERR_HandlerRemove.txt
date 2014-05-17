@@ -8,7 +8,7 @@
 //   error handler.
 //
 // --[HEADEREND]---------------------------------------
-C_LONGINT($0;$error_l)
+C_LONGINT($0;UTIL_ERR_4DError_l)
 
 // Note: these proc vars are set in UTIL_ERR_HandlerInstall
 C_TEXT(oldErrorHandler_t;newErrorHandler_t)
@@ -17,20 +17,9 @@ C_TEXT($installedErrorHandler_t)
 
 $installedErrorHandler_t:=Method called on error
 
-// Note: allows custom error handlers to extend the generic error handler,
-// as long as they set a value in UTIL_ERR_4DError_l
-If (($installedErrorHandler_t=UTIL_ERR_GenericHandler_t) | (UTIL_ERR_4DError_l#0))
-// If the generic handler executed, UTIL_ERR_4DError_l will have the error code.
-If (UTIL_ERR_4DError_l#0)
-$error_l:=<>ERR_4D_l
-End if 
-Else 
-$error_l:=ERROR
-End if 
-
 // Don't mess with it unless our error handler is installed.
 If ($installedErrorHandler_t=newErrorHandler_t)
 ON ERR CALL(oldErrorHandler_t)
 End if 
 
-$0:=$error_l
+$0:=UTIL_ERR_4DError_l

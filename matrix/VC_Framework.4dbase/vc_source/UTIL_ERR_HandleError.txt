@@ -77,6 +77,7 @@ $dialogName_t:="UTIL_ERR_Dialog4D"
 End if 
 
 $winRef_l:=Open form window($dialogName_t;Sheet form window ;Horizontally Centered ;Vertically Centered )
+SET WINDOW TITLE(<>VC_COMPONENTNAME_T)
 DIALOG($dialogName_t)
 CLOSE WINDOW($winRef_l)
 

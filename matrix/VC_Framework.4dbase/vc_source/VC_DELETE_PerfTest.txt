@@ -1,0 +1,76 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 01/15/14, 16:00:12
+// ----------------------------------------------------
+// Description:
+//   Track the performance of METHOD GET PATHS (MGP) when
+//   looking for deleted methods.
+//
+//   MGP locks up design mode.  This hang is
+//   imperceptible in smaller applications but can be a
+//   problem in databases with a large number of object
+//   methods.
+//
+//   If VC_Framework notices MGP seems to be slow, it
+//   will offer to install the deletion detection code
+//   into On Exit instead, and disable the background
+//   process.  In other words deleted methods will only
+//   be taken care of when quitting.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+C_LONGINT(VC_METHOD_MGPcount_l;VC_METHOD_MGPduration_l)// Defined in VC_METHOD_FindDelete
+C_TEXT(VC_DELETE_Average_t)
+C_BOOLEAN(VC_DELETE_IgnoreOnce_f;VC_DELETE_IgnoreAlways_f;VC_DELETE_DeleteIfChange_f;VC_DELETE_InstallDeleteOnExit_f)
+
+C_LONGINT(VC_DELETE_MGPSum_l;$MGPaverage_l;$winRef)
+
+// Calculate the average execution time.
+VC_DELETE_MGPSum_l:=VC_DELETE_MGPSum_l+VC_METHOD_MGPduration_l
+$MGPaverage_l:=VC_DELETE_MGPSum_l/VC_METHOD_MGPcount_l
+
+
+If ($MGPaverage_l><>VC_MGP_Threshold_l)
+VC_DELETE_Average_t:=String($MGPaverage_l)
+
+
+$winRef:=Open form window("VC_DELETE_SlowDelete";Plain form window ;Horizontally Centered ;Vertically Centered )
+SET WINDOW TITLE(<>VC_COMPONENTNAME_T)
+DIALOG("VC_DELETE_SlowDelete")
+CLOSE WINDOW($winRef)
+
+// TODO I also should probably have a way to switch between the two modes programmatically.
+Case of 
+: (VC_DELETE_DeleteIfChange_f)
+
+// Set a preference for this.
+VC_CONFIG_DeleteProcDisableSet (True)
+VC_CONFIG_DeleteOnChangeSet (True)
+// Stop this process.
+<>VC_StopDelete_f:=True
+
+
+: (VC_DELETE_IgnoreAlways_f)
+// Set a preference to indicate the user would like to ignore the slow performance and run in realtime.
+VC_CONFIG_IgnoreSlowDeleteSet (True)
+
+
+// This feature isn't currently offered (see VC_UTIL_DetectUnnamedError for explanation why)
+: (VC_DELETE_InstallDeleteOnExit_f)
+// Install On Exit code.
+$error_l:=VC_DELETE_OnExitInstall 
+If ($error_l=0)
+// Set a preference for this.
+VC_CONFIG_DeleteProcDisableSet (True)
+// Stop this process.
+<>VC_StopDelete_f:=True
+End if 
+
+Else 
+VC_DELETE_IgnoreOnce_f:=True
+End case 
+
+End if 
+
+$0:=$error_l

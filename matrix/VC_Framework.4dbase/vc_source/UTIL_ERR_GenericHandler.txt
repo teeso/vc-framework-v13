@@ -15,4 +15,9 @@ UTIL_ERR_4DError_l:=ERROR
 UTIL_ERR_4DErrorMethod_t:=ERROR METHOD
 UTIL_ERR_4DErrorLine_l:=ERROR LINE
 
+// Clear the arrays just in case GET LAST ERROR STACK fails.
+ARRAY LONGINT(UTIL_ERR_4DStackCodes_al;0)
+ARRAY TEXT(UTIL_ERR_4DStackComp_at;0)
+ARRAY TEXT(UTIL_ERR_4DStackErrors_at;0)
+
 GET LAST ERROR STACK(UTIL_ERR_4DStackCodes_al;UTIL_ERR_4DStackComp_at;UTIL_ERR_4DStackErrors_at)

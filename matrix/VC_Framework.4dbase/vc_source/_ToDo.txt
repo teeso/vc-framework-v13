@@ -1,4 +1,7 @@
 ﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// Convert strings to xliff
+
+
 // Future nice-to-have features:
 // Add and remove macros depending on process state?  E.g.:
 //   -If the process is running, hide the start Macro.

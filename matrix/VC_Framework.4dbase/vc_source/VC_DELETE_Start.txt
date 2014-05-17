@@ -1,26 +1,35 @@
 ﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
 // --[HEADERSTART]-------------------------------------
-// User name (OS): Joshua Fletcher
-// Date and time: 04/11/12, 18:13:57
+// User name (OS): jfletcher
+// Date and time: 04/06/12, 15:01:43
 // ----------------------------------------------------
 // Description:
-//   Stops the CodeEditor monitor process.
+//   Start stored procedure to monitor deleted methods.
 //
+//   Note: there can be only one.
 //   Note: executes on server.
 //
 //   Called by Macro.
 // --[HEADEREND]---------------------------------------
-C_LONGINT($error_l)
+C_LONGINT($stack_l;$PID_l;$error_l)
+C_TEXT($methodName_t;$processName_t)
 
 C_BOOLEAN(<>VC_Enabled_f)
 
 If (<>VC_Enabled_f)
-<>VC_StopMonitor_f:=True
+
+$stack_l:=1024*1024
+$methodName_t:="VC_DELETE_Process"
+$processName_t:=$methodName_t
+
+<>VC_StopDelete_f:=False
+
+$PID_l:=New process($methodName_t;$stack_l;$processName_t;*)
 Else 
 UTIL_ERR_Startup 
 // This should be impossible, because you have to open
 // a method in order to run the the macro that calls
-// this method...opening a method launches the component.
+// this method...opening a method launches the startup code.
 $error_l:=<>ERR_VC_NotEnabled_l
 UTIL_ERR_ErrorMethod_t:=Current method name
 End if 

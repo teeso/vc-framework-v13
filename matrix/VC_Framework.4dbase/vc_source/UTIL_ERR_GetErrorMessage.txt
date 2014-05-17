@@ -65,7 +65,12 @@ $errorMessage_t:="Call to VC_DEVHOOK_Create failed, method will not be saved."
 $errorMessage_t:="Call to VC_DEVHOOK_Delete failed, method will not be deleted."
 
 Else 
+// Check to see if it's a 4D error.
+If (UTIL_ERR_4DError_l#0)
+$errorMessage_t:=UTIL_ERR_4DStackErrors_at{1}
+Else 
 $errorMessage_t:=$nullMessage_t
+End if 
 End case 
 
 $0:=$errorMessage_t

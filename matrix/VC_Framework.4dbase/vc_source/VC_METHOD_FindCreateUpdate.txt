@@ -30,7 +30,7 @@ $error_l:=VC_EXT_Open
 
 If ($error_l=0)
 
-If (VC_ProgInstalled_f)
+If (VC_ProgInstalled_f & (<>VC_Quit_f=False))
 // Progress bar setup.
 $progThreshold_l:=1000
 $progTitle_t:=<>VC_ComponentName_t+" Searching Updates"
@@ -41,7 +41,7 @@ $currentMethod_l:=1
 
 // Loop over each method to check...
 While (($currentMethod_l<=$numMethods_l) & ($error_l=0))
-If (VC_ProgInstalled_f)
+If (VC_ProgInstalled_f & (<>VC_Quit_f=False))
 $progress_r:=$currentMethod_l/$numMethods_l
 PROG_Update ($progID_l;$progress_r;$currentMethod_l)
 End if 

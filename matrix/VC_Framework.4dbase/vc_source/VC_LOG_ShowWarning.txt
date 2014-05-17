@@ -9,7 +9,12 @@
 // --[HEADEREND]---------------------------------------
 C_LONGINT($winRef)
 
+C_TEXT(UTIL_WARN_DialogTitle_t)
+
+UTIL_WARN_DialogTitle_t:=<>VC_COMPONENTNAME_T+" Warning!"
+
 $winRef:=Open form window("VC_LOG_Warning";Plain form window ;Horizontally Centered ;Vertically Centered )
+SET WINDOW TITLE(<>VC_COMPONENTNAME_T)
 DIALOG("VC_LOG_Warning")
 
 CLOSE WINDOW($winRef)

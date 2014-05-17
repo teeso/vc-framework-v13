@@ -17,7 +17,7 @@
 // --[HEADEREND]---------------------------------------
 C_TEXT($1;$prefLabel_t)
 C_TEXT($2;$prefValue_t)
-C_BOOLEAN($3;$overwrite_f)// Optional
+C_BOOLEAN($3;$overwrite_f)// Optional, default true
 
 C_LONGINT($0;$error_l)
 

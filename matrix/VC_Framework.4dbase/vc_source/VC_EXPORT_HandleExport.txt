@@ -4,10 +4,10 @@
 // Date and time: 04/05/12, 16:14:59
 // ----------------------------------------------------
 // Description:
-//   Wrapper method called by VC_MON_Process.
+//   Wrapper method called by VC_MON_ExportProcess.
 //
-//   I moved this to a separate method (from VC_MON_Process)
-//   so that changes can be made at run time without
+//   I moved this to a separate method (from VC_MON_ExportProcess)
+//   so that changes can be made at runtime without
 //   restarting the monitor.
 // --[HEADEREND]---------------------------------------
 C_LONGINT($0;$error_l)
@@ -50,22 +50,33 @@ End if
 End if 
 
 
-// ==============================================================================
-// Determine delete actions.
-If ($error_l=0)
+// Only run this if something actually changed. This is to minimize
+// the impact of VC_METHOD_FindDelete, which can freeze design mode.
+// Note there's a lot of ways the stamp can change (compiling,
+// switching from User to Design, etc.) so this current test may
+// still have too high of an impact. The reason I'm checking the
+// stamp is I verified that the stamp will change when a method is
+// deleted.
+// If the performance impact is still to high, here's an alternative test.
+// If( ($error_l=0)&(Size of array($methodsToSave_at)>0 )
+If (($error_l=0) & (<>VC_LastMethodStamp_l#$currentMethodStamp_l))
+If (<>VC_DeleteOnChange_f)
 $error_l:=VC_METHOD_FindDelete 
+End if 
 End if 
 
 
 // ==============================================================================
 // Process actions.
 If ($error_l=0)
-$error_l:=VC_METHOD_HandleEvents (->$methodsToSave_at)
+$error_l:=VC_METHOD_HandleEvents 
 End if 
+
 
 If (VC_ProgInstalled_f)
 PROG_CloseAll 
 End if 
+
 
 // Check to see if the stamp changed and save it if so.
 If ($error_l=0)

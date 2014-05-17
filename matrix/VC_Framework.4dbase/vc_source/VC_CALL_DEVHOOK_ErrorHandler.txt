@@ -12,11 +12,10 @@
 //   The important thing is the devhook host should
 //   trap *all other errors*.
 // --[HEADEREND]---------------------------------------
-C_LONGINT($4DError_l)
+// Set up default error handling vars.
+UTIL_ERR_GenericHandler 
 
-$4DError_l:=ERROR
-
-If ($4DError_l#-10508)
+If (UTIL_ERR_4DError_l#-10508)
 // The Implementing host should handle all other errors.
-// This needs to bubble up and disable the export?
+// This needs to bubble up and disable the export.
 End if 

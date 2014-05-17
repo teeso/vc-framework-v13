@@ -1,0 +1,17 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): jfletcher
+// Date and time: 04/05/12, 16:14:59
+// ----------------------------------------------------
+// Description:
+//   Wrapper method to handle deleted methods.
+//
+//   This is a separate method so that changes
+//   can be made at runtime without restarting the
+//   process.
+// --[HEADEREND]---------------------------------------
+C_LONGINT($0;$error_l)
+
+$error_l:=VC_METHOD_FindDelete 
+
+$0:=$error_l

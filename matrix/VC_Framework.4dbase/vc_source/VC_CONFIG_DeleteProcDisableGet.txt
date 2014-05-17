@@ -1,0 +1,26 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 01/15/14, 15:38:58
+// ----------------------------------------------------
+// Description:
+//   Flag to indicate if the deletion detection code
+//   will run during On Exit, or not.
+//
+//   Note that this can also prevent the stored procedure
+//   from starting.
+// --[HEADEREND]---------------------------------------
+C_BOOLEAN($0;$deleteProcDisabled_f)
+
+C_LONGINT($error_l)
+C_TEXT($deleteProcDisabled_t)
+
+$error_l:=VC_EXT_PrefGet ("VC_DeleteProcDisabled";->$deleteProcDisabled_t)
+
+If ($error_l=0)
+If ($deleteProcDisabled_t="True")
+$deleteProcDisabled_f:=True
+End if 
+End if 
+
+$0:=$deleteProcDisabled_f

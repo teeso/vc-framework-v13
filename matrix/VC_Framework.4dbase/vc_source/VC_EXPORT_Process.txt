@@ -7,6 +7,9 @@
 //   Stored procedure that monitors method changes and
 //   kicks of a save accordingly.
 //
+//   Handles new and changed methods; see VC_DELETE_@
+//   for deleted and renamed methods.
+//
 //   This process is launched via macro events, no
 //   setup code is required in the Host.
 //
@@ -27,6 +30,12 @@ UTIL_ERR_Startup
 // Set up progress bar component.
 VC_ProgInstalled_f:=UTIL_ProgStartup 
 
+// Used for DELAY PROCESS
+<>VC_ExportDelay_l:=VC_CONFIG_ExportDelayGet 
+
+// Used to determine if delete code should run from this process.
+<>VC_DeleteOnChange_f:=VC_CONFIG_DeleteOnChangeGet 
+
 // Error messages are only displayed the first time; the
 // process will keep running even if there's an error in
 // case the user fixes it.
@@ -34,7 +43,7 @@ $showError_f:=True
 
 // I load this preference once, outside the loop, so
 // that I don't need to connect to the external database
-// at the beginning of every loop.  The only time I
+// for every iteration.  The only time I
 // connect to the external database is if the stamp changes.
 $error_l:=VC_EXT_PrefGet (<>VC_StampLabel_t;->$lastMethodStamp_t)
 
@@ -44,33 +53,22 @@ If ($error_l=0)
 
 Repeat 
 
-// Process the methods...
+// ===================================================================================
+// Perform tasks
+
 If (<>VC_ERROR_F=False)
 // Reset flag to show errors in case it was off.
 $showError_f:=True
-$error_l:=VC_MON_ProcessChanges 
+$error_l:=VC_EXPORT_HandleExport 
 End if 
 
-// Test for error.
-If ($error_l#0)
-// Disable the module.  NOTE: process keeps running in
-// case the problem is fixed.
-<>VC_ERROR_F:=True
-End if 
 
-// Only show the error once, not every iteration.
-If (($error_l#0) & ($showError_f))
-UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t)
-$showError_f:=False
-End if 
+// ===================================================================================
+// Perform maintenance
 
-// This method detects if the database is quitting,
-// in addition to delaying the process.
-VC_MON_DelayProcess 
+VC_UTIL_ProcessMaintenance ($error_l;->$showError_f;-><>VC_StopExport_f;<>VC_ExportDelay_l)
 
-IDLE
-
-Until (<>VC_StopMonitor_f)
+Until (<>VC_StopExport_f | <>VC_Quit_f)
 
 Else 
 UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;Current method name)

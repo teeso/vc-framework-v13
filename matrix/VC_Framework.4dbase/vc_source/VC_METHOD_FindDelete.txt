@@ -16,7 +16,12 @@
 // --[HEADEREND]---------------------------------------
 C_LONGINT($0;$error_l)
 
+// METHOD GET PATHS can be quite slow in a database with a lot of object methods.
+// I'm tracking this as a quality metric.
+C_LONGINT(VC_METHOD_MGPduration_l;VC_METHOD_MGPcount_l)
+
 C_LONGINT($numMethods_l;$currentMethod_l;$zeroStamp_l;$pos_l;$start_l)
+C_LONGINT($begin_l;$end_l)
 C_TEXT($currentMethodPath_t;$newAction_t;$stateFilter_t)
 C_BOOLEAN($methodExists_f)
 
@@ -49,12 +54,20 @@ $numMethods_l:=Size of array($methodsInTable_at)
 
 If ($numMethods_l>0)
 
+// DEBUG
+UTIL_ERR_ErrorMethod_t:=Current method name
+
 // I will compare every method in the database to the records in the component table.
 UTIL_ERR_HandlerInstall ("VC_ERR_HandleMGP")
+$begin_l:=Milliseconds
 METHOD GET PATHS(Path All objects ;$methodsInDatabase_at;$zeroStamp_l;*)
+$end_l:=Milliseconds
 $error_l:=UTIL_ERR_HandlerRemove 
 
 If ($error_l=0)
+
+VC_METHOD_MGPduration_l:=$end_l-$begin_l
+VC_METHOD_MGPcount_l:=VC_METHOD_MGPcount_l+1
 
 // Sort the arrays to make the search faster. The majority of the
 // time the first element searched should match since deletes and

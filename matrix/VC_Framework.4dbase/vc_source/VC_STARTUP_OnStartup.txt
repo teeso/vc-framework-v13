@@ -1,137 +1,25 @@
 ﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
 // --[HEADERSTART]-------------------------------------
 // User name (OS): Joshua Fletcher
-// Date and time: 04/04/12, 12:34:05
+// Date and time: 05/16/14, 15:29:40
 // ----------------------------------------------------
 // Description:
-//   Startup code for the component.
+//   Launch VC_Framework startup code.
 //
-//   This code is launched via the macro events, there
-//   is no setup code needed in the Host database.
+//   This code can be launched via the macro events,
+//   no setup code is required in the Host database.
 //
-//   Important note: most of this code should only
-//   run once per session.  Once it's started
-//   executing, it won't run again. Only some of the
-//   global variable definitions execute each time.
+//   Run as a separate process so it doesn't hang up On
+//   Startup (also because of ACI0087902) nor Design
+//   Mode (when launched from a Macro).
 //
 //   Note: executes on server.
 // --[HEADEREND]---------------------------------------
-C_LONGINT($error_l)
-C_TEXT($sourceFolderName_t;$sourceFolderPath_t;$logFileName_t)
+C_LONGINT($stack_l;$PID_l)
+C_TEXT($methodName_t;$processName_t)
 
-// These are used to set up the global vars.
-$sourceFolderName_t:="vc_source"
-$sourceFolderPath_t:=Get 4D folder(Database Folder ;*)+$sourceFolderName_t
-$logFileName_t:="VC_errors.txt"
+$stack_l:=1024*1024
+$methodName_t:="VC_STARTUP_Process"
+$processName_t:=$methodName_t
 
-// Set up error handling module.
-UTIL_ERR_Startup 
-
-// ===================================================================================
-// Global variables, used throughout the component.
-
-// Component name used for various dialogs and messages.
-C_TEXT(<>VC_ComponentName_t)
-<>VC_ComponentName_t:=UTIL_FILE_GetDatabaseName 
-
-// Design Object Access paths are all POSIX compliant (thus need to be converted to System).
-// However they are also relative paths.  The "Convert path POSIX to system" command
-// requires absolute paths.  I.e. I need the source root path to be POSIX for further
-// usage.
-// Furthmore Design Object Access paths are encoded (so pass the *).
-C_TEXT(<>VC_SourcerootPOSIX_t)
-<>VC_SourcerootPOSIX_t:=Convert path system to POSIX($sourceFolderPath_t;*)
-
-// Constant for the external database, this is the name of the last stamp preference.
-C_TEXT(<>VC_StampLabel_t)
-<>VC_StampLabel_t:="Last Method Stamp"
-
-// Log file for invalid method paths (see VC_EXT_LogSave)
-C_TEXT(<>VC_EXT_LogFile_t)
-<>VC_EXT_LogFile_t:=Get 4D folder(Logs Folder ;*)+"VC_errors.txt"
-
-// VC actions, used to determine which callback to call.
-C_TEXT(<>VC_METHOD_ACTION_Create_t)
-C_TEXT(<>VC_METHOD_ACTION_Update_t)
-C_TEXT(<>VC_METHOD_ACTION_Delete_t)
-
-<>VC_METHOD_ACTION_Create_t:="VC_Create"
-<>VC_METHOD_ACTION_Update_t:="VC_Update"
-<>VC_METHOD_ACTION_Delete_t:="VC_Delete"
-
-// Method state, used to track deleted methods mainly.
-// That is to say a record will persist for deleted
-// methods, but be ignored on subsequent queries.
-C_TEXT(<>VC_METHOD_STATE_Active_t)
-C_TEXT(<>VC_METHOD_STATE_Deleted_t)
-
-<>VC_METHOD_STATE_Active_t:="VC_Active"
-<>VC_METHOD_STATE_Deleted_t:="VC_Deleted"
-
-
-// Check to make sure the code can be executed.
-If (VC_STARTUP_OkToStart )
-
-// These global vars should only be set once per session.
-
-// Global flag to stop the background monitor process (and prevent it from relaunching too).
-C_BOOLEAN(<>VC_StopMonitor_f)
-<>VC_StopMonitor_f:=False
-
-// Global error flag, if there's an error, code export is disabled.
-C_BOOLEAN(<>VC_Error_f)
-<>VC_Error_f:=False
-
-
-// The root for source files.
-If (Test path name($sourceFolderPath_t)#Is a folder )
-CREATE FOLDER($sourceFolderPath_t)
-End if 
-
-
-// ===================================================================================
-// Set up the external database.
-If ($error_l=0)
-$error_l:=VC_STARTUP_EXTSetup 
-End if 
-
-// Make sure all unqiue fields have indexes (required by 4D v13.5)
-If ($error_l=0)
-$error_l:=VC_STARTUP_EXTIndex 
-End if 
-
-// Set the initial stamp value, but don't overwrite if it already exists.
-If ($error_l=0)
-$error_l:=VC_EXT_PrefSet (<>VC_StampLabel_t;"0";False)
-End if 
-
-
-// ===================================================================================
-// These items only run if in component mode.
-If ($error_l=0)
-If (UTIL_IsComponent )
-// Nothing for now.
-End if 
-End if 
-
-
-// ===================================================================================
-// Set a flag so we know everything is set up.
-If ($error_l=0)
-C_BOOLEAN(<>VC_Enabled_f)
-<>VC_Enabled_f:=True
-End if 
-
-
-// ===================================================================================
-// Start background process to monitor code changes.
-If ($error_l=0)
-VC_MON_Start 
-End if 
-
-
-If ($error_l#0)
-UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t;"Startup failed.")
-End if 
-
-End if 
+$PID_l:=New process($methodName_t;$stack_l;$processName_t;*)

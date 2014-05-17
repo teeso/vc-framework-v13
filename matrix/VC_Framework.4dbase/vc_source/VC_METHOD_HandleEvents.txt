@@ -11,27 +11,56 @@
 //   this method (see VC_METHOD_ValidateAll). I.e.
 //   don't call this method with invalid paths.
 // --[HEADEREND]---------------------------------------
+C_POINTER($1;$actionsToCheck_at_p)
+
 C_LONGINT($0;$error_l)
 
 C_LONGINT($numMethods_l;$currentMethod_l;$progThreshold_l;$progID_l)
+C_LONGINT($currentAction_l;$numActions_l)
 C_TEXT($progTitle_t;$currentMethodPath_t;$currentMethodAction_t;$newAction_t;$newState_t;$filePath_t)
+C_TEXT($queryMethodsByAction_t;$currentAction_t)
 C_REAL($progress_r)
 C_BOOLEAN($actionIsOK_f)
 
+ARRAY TEXT($actionsToCheck_at;0)
+
 ARRAY TEXT($methodPaths_at;0)
 ARRAY TEXT($methodActions_at;0)
+
+If (Count parameters>=1)
+$actionsToCheck_at_p:=$1
+COPY ARRAY($actionsToCheck_at_p->;$actionsToCheck_at)
+Else 
+APPEND TO ARRAY($actionsToCheck_at;<>VC_METHOD_ACTION_Update_t)
+APPEND TO ARRAY($actionsToCheck_at;<>VC_METHOD_ACTION_Create_t)
+APPEND TO ARRAY($actionsToCheck_at;<>VC_METHOD_ACTION_Delete_t)
+End if 
+
 
 $error_l:=VC_EXT_Open 
 
 If ($error_l=0)
 
-// Get all records that have an action.
+$numActions_l:=Size of array($actionsToCheck_at)
+
+$queryMethodsByAction_t:=""
+$queryMethodsByAction_t:=$queryMethodsByAction_t+"SELECT methodPath, action "
+$queryMethodsByAction_t:=$queryMethodsByAction_t+"FROM VC_Methods "
+For ($currentAction_l;1;$numActions_l)
+$currentAction_t:=$actionsToCheck_at{$currentAction_l}
+If ($currentAction_l=1)
+$queryMethodsByAction_t:=$queryMethodsByAction_t+"WHERE "
+Else 
+$queryMethodsByAction_t:=$queryMethodsByAction_t+"OR "
+End if 
+$queryMethodsByAction_t:=$queryMethodsByAction_t+" action = '"+$currentAction_t+"' "
+End for 
+$queryMethodsByAction_t:=$queryMethodsByAction_t+"INTO :$methodPaths_at, :$methodActions_at;"
+
+// Get all records that have the action.
 UTIL_ERR_HandlerInstall 
 Begin SQL
-SELECT methodPath, action
-FROM VC_Methods
-WHERE NOT action = ''
-INTO :$methodPaths_at, :$methodActions_at;
+EXECUTE IMMEDIATE :$queryMethodsByAction_t;
 End SQL
 $error_l:=UTIL_ERR_HandlerRemove 
 
@@ -41,7 +70,7 @@ $numMethods_l:=Size of array($methodPaths_at)
 
 If ($numMethods_l>0)
 
-If (VC_ProgInstalled_f)
+If (VC_ProgInstalled_f & (<>VC_Quit_f=False))
 $progThreshold_l:=1000
 $progTitle_t:=<>VC_ComponentName_t+" Processing Methods"
 $progID_l:=PROG_Create ($progTitle_t;$numMethods_l;$progThreshold_l)
@@ -55,9 +84,9 @@ While (($currentMethod_l<=$numMethods_l) & ($error_l=0))
 $currentMethodPath_t:=$methodPaths_at{$currentMethod_l}
 $currentMethodAction_t:=$methodActions_at{$currentMethod_l}
 
-If (VC_ProgInstalled_f)
+If (VC_ProgInstalled_f & (<>VC_Quit_f=False))
 $progress_r:=$currentMethod_l/$numMethods_l
-PROG_Update ($progID_l;$progress_r;$currentMethod_l)
+PROG_Update ($progID_l;$progress_r;$currentMethod_l;$numMethods_l;$currentMethodAction_t)
 End if 
 
 // VC software deals with files, not "method paths" so convert

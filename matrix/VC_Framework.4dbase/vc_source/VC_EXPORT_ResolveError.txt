@@ -17,12 +17,12 @@ C_LONGINT($error_l)
 If (<>VC_Enabled_f)
 <>VC_ERROR_F:=False
 
-VC_MON_Start 
+VC_EXPORT_Start 
 Else 
 UTIL_ERR_Startup 
 // This should be impossible, because you have to open
 // a method in order to run the the macro that calls
-// this method...opening a method launches the component.
+// this method...opening a method launches the startup code.
 $error_l:=<>ERR_VC_NotEnabled_l
 UTIL_ERR_ErrorMethod_t:=Current method name
 End if 

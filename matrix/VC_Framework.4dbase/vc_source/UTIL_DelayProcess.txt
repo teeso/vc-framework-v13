@@ -13,10 +13,10 @@
 //   When 4D is quitting, calls to DELAY PROCESS do
 //   nothing, so the delay should be 0.
 //
-//   There is some risk that the process could
-//   inadvertantly exit.  If a really small delay is
-//   used, for example.  I'm optimistic this won't be
-//   an issue.
+//   WARNING! The above is no longer true, DELAY PROCESS
+//   works fine when quitting.
+//
+//   TODO: Find a way to make this work.
 //
 //   Of course I could just add an On Exit method to
 //   the component, to be called by the user, but I
@@ -24,6 +24,8 @@
 //   database if possible.
 // --[HEADEREND]---------------------------------------
 C_LONGINT($1;$delay_l)// Optional, default is 1 second.
+
+C_BOOLEAN($0;$timeToQuit_f)
 
 C_LONGINT($start_l;$end_l;$total_l)
 
@@ -39,12 +41,10 @@ $end_l:=Tickcount
 
 $total_l:=$end_l-$start_l
 
-// This may be too close of a comparison.  If the total is 0 might be better.
-// But I worry about it being maybe 1 instead of 0.  In all my testing $total_l
-// is always less than $delay_l, though I'm not sure if 4D guarantees this.
-// Keep in mind this is a development-time only component, so there is zero
-// risk to production/compiled systems.
+// UPDATE: This will never happen...
 If ($total_l<$delay_l)
 // Delay process is no longer working, most likely the database is quitting.
-<>VC_StopMonitor_f:=True
+$timeToQuit_f:=True
 End if 
+
+$0:=$timeToQuit_f

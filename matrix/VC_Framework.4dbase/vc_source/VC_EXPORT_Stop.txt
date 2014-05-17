@@ -1,30 +1,21 @@
 ﻿//%attributes = {"lang":"en","invisible":true,"shared":true,"executedOnServer":true} comment added and reserved by 4D.
 // --[HEADERSTART]-------------------------------------
-// User name (OS): jfletcher
-// Date and time: 04/06/12, 15:01:43
+// User name (OS): Joshua Fletcher
+// Date and time: 04/11/12, 18:13:57
 // ----------------------------------------------------
 // Description:
-//   Start stored procedure to monitor code changes.
+//   Stops the CodeEditor monitor process.
 //
-//   Note: there can be only one.
 //   Note: executes on server.
 //
 //   Called by Macro.
 // --[HEADEREND]---------------------------------------
-C_LONGINT($stack_l;$PID_l;$error_l)
-C_TEXT($methodName_t;$processName_t)
+C_LONGINT($error_l)
 
 C_BOOLEAN(<>VC_Enabled_f)
 
 If (<>VC_Enabled_f)
-
-$stack_l:=1024*1024
-$methodName_t:="VC_MON_Process"
-$processName_t:=<>VC_ComponentName_t+" process"
-
-<>VC_StopMonitor_f:=False
-
-$PID_l:=New process($methodName_t;$stack_l;$processName_t;*)
+<>VC_StopExport_f:=True
 Else 
 UTIL_ERR_Startup 
 // This should be impossible, because you have to open

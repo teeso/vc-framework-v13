@@ -1,0 +1,48 @@
+﻿//%attributes = {"lang":"en","invisible":true} comment added and reserved by 4D.
+// --[HEADERSTART]-------------------------------------
+// User name (OS): Joshua Fletcher
+// Date and time: 01/15/14, 15:35:56
+// ----------------------------------------------------
+// Description:
+//
+//   WARNING!
+//   WARNING! This method may not work.  See VC_UTIL_DetectUnnamedError
+//   WARNING!
+//
+//   Find all deleted methods and delete files on disk.
+//
+// --[HEADEREND]---------------------------------------
+
+// This typing definition is here just to prevent runtime errors.
+// The progress module is not actually enabled for this procedure.
+// Originally I didn't want to be opening UI during On Exit.
+// However I realize now this is a mistake so if I ever re-enable
+// this feature I should enable the progress module too.
+C_BOOLEAN(VC_ProgInstalled_f)
+
+C_LONGINT($error_l;$dontCare_l)
+C_TEXT($procName_t)
+
+ARRAY TEXT($actionsToCheck_at;0)
+
+PROCESS PROPERTIES(Current process;$procName_t;$dontCare_l;$dontCare_l)
+
+If ($procName_t="$xx")
+
+VC_STARTUP_OnStartup 
+
+$error_l:=VC_METHOD_FindDelete 
+
+If ($error_l=0)
+// Make sure to only process DELETE actions, the others are already handled elsewhere.
+APPEND TO ARRAY($actionsToCheck_at;<>VC_METHOD_ACTION_Delete_t)
+$error_l:=VC_METHOD_HandleEvents (->$actionsToCheck_at)
+End if 
+
+Else 
+ALERT("Only use this method from On Exit.")
+End if 
+
+If ($error_l#0)
+UTIL_ERR_HandleError ($error_l;<>VC_ComponentName_t;UTIL_ERR_ErrorMethod_t;Current method name+" failed.")
+End if 
