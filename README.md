@@ -1,5 +1,9 @@
 # VC_Framework v13
 
+> ## IMPORTANT NOTE
+> 
+> VC_Framework v13 is unlikely to receive further updates. I have a decent amount of work to do to fully support VC_Forms (which requires 4D v14) and there's no reason to make these changes in the v13 version. Plus there are some v14 features I would like to take advantage of.  So future development will be happening in the [VC_Framework v14 component](https://github.com/4D/vc-framework-v14) only.
+
 ## Description
 
 The VC_Framework component facilitates automatic export of all methods in a [4D](http://www.4d.com) host database to text files on disk.  If the host database is under revision control, these text files are suitable for committing to the repository, thus giving the developer to ability to track changes to methods over time. Most importantly, the VC_Framework component is designed to have zero impact on the host database.  There is no startup code to install and nothing to configure.

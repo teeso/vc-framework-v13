@@ -1,6 +1,4 @@
-Component Version: 679
+Component Version: 771
 4D Version: 13
 
 This file represents the version number of the component.
-
-To build a new version, execute the "BLD_Build" method from the matrix database.
